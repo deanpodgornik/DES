@@ -1,0 +1,27 @@
+# Build artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Debug outputs
+debug_screenshots/
+
+# User-specific files
+template.png
+config.xml
+
+# .NET
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+.vscode/
+
+# OS files
+Thumbs.db
+.DS_Store
