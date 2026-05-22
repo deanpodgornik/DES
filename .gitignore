@@ -8,9 +8,6 @@ obj/
 # Debug outputs
 debug_screenshots/
 
-# User-specific files
-template.png
-config.xml
 
 # .NET
 *.user
