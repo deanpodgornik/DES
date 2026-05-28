@@ -22,7 +22,7 @@
   <MatchTolerance>30</MatchTolerance>
 
   <!-- Debug mode - shrani screenshote za analizo (true/false) -->
-  <DebugMode>true</DebugMode>
+  <DebugMode>false</DebugMode>
 
   <!-- Zamik pred klikom po ujemanju v milisekundah (3000 = 3 sekunde) -->
   <ClickDelayMs>3000</ClickDelayMs>
