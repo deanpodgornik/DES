@@ -98,6 +98,9 @@ public class AutoClickerConfig
 
     [XmlElement("DebugMode")]
     public bool DebugMode { get; set; }
+
+    [XmlElement("ClickDelayMs")]
+    public int ClickDelayMs { get; set; }
 }
 
 public static class ConfigLoader
@@ -127,7 +130,8 @@ public static class ConfigLoader
             TemplateImagePath = "template.png",
             CheckIntervalMs = 3000,
             MatchTolerance = 30,
-            DebugMode = false
+            DebugMode = false,
+            ClickDelayMs = 3000
         };
 
         var serializer = new XmlSerializer(typeof(AutoClickerConfig));
@@ -191,7 +195,11 @@ class AutoClicker
                 if (matchResult.IsMatch)
                 {
                     matchCount++;
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}! Klikam na ({_config.ClickX}, {_config.ClickY})");
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}! Čakam {_config.ClickDelayMs / 1000.0:0.#} sekunde pred klikom...");
+
+                    await Task.Delay(_config.ClickDelayMs, cts.Token);
+
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Klikam na ({_config.ClickX}, {_config.ClickY})");
 
                     // Premakni miško in klikni
                     _mouseController.Click(_config.ClickX, _config.ClickY);
