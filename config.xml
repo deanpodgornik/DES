@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoClickerConfig>
   <!-- Koordinate kjer iščemo sliko -->
-  <SearchX>1168</SearchX>
-  <SearchY>545</SearchY>
+  <SearchX>1141</SearchX>
+  <SearchY>534</SearchY>
 
   <!-- Velikost območja za iskanje -->
-  <SearchWidth>140</SearchWidth>
-  <SearchHeight>60</SearchHeight>
+  <SearchWidth>138</SearchWidth>
+  <SearchHeight>67</SearchHeight>
 
   <!-- Koordinate kamor kliknemo, če najdemo sliko -->
-  <ClickX>1145</ClickX>
-  <ClickY>497</ClickY>
+  <ClickX>1895</ClickX>
+  <ClickY>17</ClickY>
 
   <!-- Pot do slike, ki jo iščemo -->
   <TemplateImagePath>template.png</TemplateImagePath>
