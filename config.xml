@@ -45,4 +45,5 @@
   <!-- CD-7220 VFD prikazovalnik cen (true/false) -->
   <DisplayEnabled>true</DisplayEnabled>
   <DisplayPort>COM3</DisplayPort>
+  <DisplayGreeting>Pozdravljeni v DES-u</DisplayGreeting>
 </AutoClickerConfig>

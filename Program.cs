@@ -128,6 +128,9 @@ public class AutoClickerConfig
 
     [XmlElement("DisplayPort")]
     public string DisplayPort { get; set; } = "COM3";
+
+    [XmlElement("DisplayGreeting")]
+    public string DisplayGreeting { get; set; } = "Pozdravljeni!";
 }
 
 public static class ConfigLoader
@@ -194,6 +197,7 @@ class AutoClicker
             {
                 _display.Open();
                 Console.WriteLine($"[CD7220] Prikazovalnik odprt na {config.DisplayPort}");
+                _display.ShowMessage(config.DisplayGreeting);
             }
             catch (Exception ex)
             {
@@ -279,6 +283,10 @@ class AutoClicker
 
                     // Premakni miško in klikni
                     //_mouseController.Click(_config.ClickX, _config.ClickY);
+
+                    //Prikaži pozdravno sporočilo
+                    _display?.ShowMessage(_config.DisplayGreeting);
+                    
                 }
                 else
                 {

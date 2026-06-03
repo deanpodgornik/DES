@@ -17,6 +17,17 @@ class Cd7220Display : IDisposable
     private static readonly byte[] CmdClear = { 0x0C };             // FF  – počisti zaslon
     private static readonly byte[] CmdCrLf  = { 0x0D, 0x0A };      // CR LF – premik na vrstico 2
 
+    // CP1250 za slovenščino (Š, Č, Ž ...)
+    // Inicializacija v statičnem konstruktorju: GetEncoding(1250) zahteva registracijo
+    // CodePagesEncodingProvider, ki v .NET 5+ ni na voljo brez eksplicitne registracije.
+    private static readonly Encoding Cp1250;
+
+    static Cd7220Display()
+    {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        Cp1250 = Encoding.GetEncoding(1250);
+    }
+
     private readonly SerialPort _port;
     private bool _disposed;
 
@@ -78,6 +89,32 @@ class Cd7220Display : IDisposable
     }
 
     /// <summary>
+    /// Prikaže sporočilo v dveh vrsticah, sredinsko poravnano.
+    /// </summary>
+    public bool ShowMessage(string line1, string line2 = "")
+    {
+        if (!_port.IsOpen) return false;
+        try
+        {
+            _port.Write(CmdClear, 0, CmdClear.Length);
+            Thread.Sleep(30);
+
+            byte[] b1 = Cp1250.GetBytes(Center(line1));
+            _port.Write(b1, 0, DisplayCols);
+            //_port.Write(CmdCrLf, 0, CmdCrLf.Length);
+            //byte[] b2 = Cp1250.GetBytes(Center(line2));
+            //_port.Write(b2, 0, DisplayCols);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CD7220] Napaka pri pisanju: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Počisti zaslon (zapiše presledke).
     /// </summary>
     public void Clear()
@@ -91,8 +128,17 @@ class Cd7220Display : IDisposable
     {
         string v = value ?? "";
         if (v.Length > DisplayCols)
-            v = v.Substring(v.Length - DisplayCols); // ohrani zadnjih 20 znakov
+            v = v.Substring(v.Length - DisplayCols);
         return v.PadLeft(DisplayCols);
+    }
+
+    // Sredinsko poravna besedilo na 20 znakov.
+    private static string Center(string value)
+    {
+        string v = (value ?? "").TrimEnd();
+        if (v.Length > DisplayCols) v = v.Substring(0, DisplayCols);
+        int pad = DisplayCols - v.Length;
+        return v.PadLeft(v.Length + pad / 2).PadRight(DisplayCols);
     }
 
     public void Dispose()
