@@ -216,37 +216,38 @@ class AutoClicker
                     screenshot.Save(debugPath);
                 }
 
-                // OCR: preberi dve številki
-                if (_config.OcrEnabled && _ocrReader != null)
-                {
-                    using var ocr1 = ScreenCapture.CaptureRegion(_config.OcrRegion1X, _config.OcrRegion1Y, _config.OcrRegion1Width, _config.OcrRegion1Height);
-                    using var ocr2 = ScreenCapture.CaptureRegion(_config.OcrRegion2X, _config.OcrRegion2Y, _config.OcrRegion2Width, _config.OcrRegion2Height);
-
-                    if (_config.DebugMode)
-                    {
-                        ocr1.Save($"debug_screenshots/ocr1_{checkCount:D4}.png");
-                        ocr2.Save($"debug_screenshots/ocr2_{checkCount:D4}.png");
-                    }
-
-                    string val1 = _ocrReader.ReadNumber(ocr1, _config.DebugMode ? $"debug_screenshots/ocr1_{checkCount:D4}_prep.png" : null);
-                    string val2 = _ocrReader.ReadNumber(ocr2, _config.DebugMode ? $"debug_screenshots/ocr2_{checkCount:D4}_prep.png" : null);
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] OCR → Številka 1: {val1}  |  Številka 2: {val2}");
-                }
-
                 // Preveri, če se slika ujema
                 var matchResult = _imageMatcher.IsMatchWithDetails(screenshot, _templateImage, _config.MatchTolerance);
 
                 if (matchResult.IsMatch)
                 {
                     matchCount++;
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}! Čakam {_config.ClickDelayMs / 1000.0:0.#} sekunde pred klikom...");
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}!");
 
+                    // OCR: preberi dve številki
+                    if (_config.OcrEnabled && _ocrReader != null)
+                    {
+                        using var ocr1 = ScreenCapture.CaptureRegion(_config.OcrRegion1X, _config.OcrRegion1Y, _config.OcrRegion1Width, _config.OcrRegion1Height);
+                        using var ocr2 = ScreenCapture.CaptureRegion(_config.OcrRegion2X, _config.OcrRegion2Y, _config.OcrRegion2Width, _config.OcrRegion2Height);
+
+                        if (_config.DebugMode)
+                        {
+                            ocr1.Save($"debug_screenshots/ocr1_{checkCount:D4}.png");
+                            ocr2.Save($"debug_screenshots/ocr2_{checkCount:D4}.png");
+                        }
+
+                        string val1 = _ocrReader.ReadNumber(ocr1, _config.DebugMode ? $"debug_screenshots/ocr1_{checkCount:D4}_prep.png" : null);
+                        string val2 = _ocrReader.ReadNumber(ocr2, _config.DebugMode ? $"debug_screenshots/ocr2_{checkCount:D4}_prep.png" : null);
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] OCR → Številka 1: {val1}  |  Številka 2: {val2}");
+                    }                    
+
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}! Čakam {_config.ClickDelayMs / 1000.0:0.#} sekunde pred klikom...");
                     await Task.Delay(_config.ClickDelayMs, cts.Token);
 
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Klikam na ({_config.ClickX}, {_config.ClickY})");
 
                     // Premakni miško in klikni
-                    //_mouseController.Click(_config.ClickX, _config.ClickY);
+                    _mouseController.Click(_config.ClickX, _config.ClickY);
                 }
                 else
                 {
