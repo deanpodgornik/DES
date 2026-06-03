@@ -122,6 +122,12 @@ public class AutoClickerConfig
     public int OcrRegion2Width { get; set; }
     [XmlElement("OcrRegion2Height")]
     public int OcrRegion2Height { get; set; }
+
+    [XmlElement("DisplayEnabled")]
+    public bool DisplayEnabled { get; set; }
+
+    [XmlElement("DisplayPort")]
+    public string DisplayPort { get; set; } = "COM3";
 }
 
 public static class ConfigLoader
@@ -171,6 +177,7 @@ class AutoClicker
     private readonly MouseController _mouseController;
     private readonly Bitmap _templateImage;
     private readonly OcrReader? _ocrReader;
+    private readonly Cd7220Display? _display;
 
     public AutoClicker(AutoClickerConfig config)
     {
@@ -180,6 +187,21 @@ class AutoClicker
         _templateImage = new Bitmap(config.TemplateImagePath);
         if (config.OcrEnabled)
             _ocrReader = new OcrReader();
+        if (config.DisplayEnabled)
+        {
+            _display = new Cd7220Display(config.DisplayPort);
+            try
+            {
+                _display.Open();
+                Console.WriteLine($"[CD7220] Prikazovalnik odprt na {config.DisplayPort}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[CD7220] Napaka pri odpiranju {config.DisplayPort}: {ex.Message}");
+                _display.Dispose();
+                _display = null;
+            }
+        }
     }
 
     public async Task StartAsync()
@@ -239,6 +261,15 @@ class AutoClicker
                         string val1 = _ocrReader.ReadNumber(ocr1, _config.DebugMode ? $"debug_screenshots/ocr1_{checkCount:D4}_prep.png" : null);
                         string val2 = _ocrReader.ReadNumber(ocr2, _config.DebugMode ? $"debug_screenshots/ocr2_{checkCount:D4}_prep.png" : null);
                         Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] OCR → Številka 1: {val1}  |  Številka 2: {val2}");
+
+                        // Zapiši na CD-7220 prikazovalnik, če je OCR uspešen
+                        if (_display != null && val1 != "?" && val1 != "N/A" && val2 != "?" && val2 != "N/A")
+                        {
+                            int allEntries = int.Parse(val1) + int.Parse(val2);
+                            bool ok = _display.ShowValues("Vhodov: "+val1+"/"+allEntries.ToString(), "");
+                            if (_config.DebugMode)
+                                Console.WriteLine($"[CD7220] Prikaz {(ok ? "uspešen" : "NAPAKA")}: '{val1}' / '{val2}'");
+                        }
                     }                    
 
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}! Čakam {_config.ClickDelayMs / 1000.0:0.#} sekunde pred klikom...");
@@ -247,7 +278,7 @@ class AutoClicker
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Klikam na ({_config.ClickX}, {_config.ClickY})");
 
                     // Premakni miško in klikni
-                    _mouseController.Click(_config.ClickX, _config.ClickY);
+                    //_mouseController.Click(_config.ClickX, _config.ClickY);
                 }
                 else
                 {
@@ -274,6 +305,7 @@ class AutoClicker
 
         _templateImage.Dispose();
         _ocrReader?.Dispose();
+        _display?.Dispose();
         Console.WriteLine($"\nZaključeno. Skupaj pregledov: {checkCount}, Ujemanj: {matchCount}");
     }
 }

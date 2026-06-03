@@ -22,7 +22,7 @@
   <MatchTolerance>30</MatchTolerance>
 
   <!-- Debug mode - shrani screenshote za analizo (true/false) -->
-  <DebugMode>true</DebugMode>
+  <DebugMode>false</DebugMode>
 
   <!-- Zamik pred klikom po ujemanju v milisekundah (3000 = 3 sekunde) -->
   <ClickDelayMs>3000</ClickDelayMs>
@@ -41,4 +41,8 @@
   <OcrRegion2Y>579</OcrRegion2Y>
   <OcrRegion2Width>43</OcrRegion2Width>
   <OcrRegion2Height>34</OcrRegion2Height>
+
+  <!-- CD-7220 VFD prikazovalnik cen (true/false) -->
+  <DisplayEnabled>true</DisplayEnabled>
+  <DisplayPort>COM3</DisplayPort>
 </AutoClickerConfig>
