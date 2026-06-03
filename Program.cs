@@ -101,6 +101,27 @@ public class AutoClickerConfig
 
     [XmlElement("ClickDelayMs")]
     public int ClickDelayMs { get; set; }
+
+    [XmlElement("OcrEnabled")]
+    public bool OcrEnabled { get; set; }
+
+    [XmlElement("OcrRegion1X")]
+    public int OcrRegion1X { get; set; }
+    [XmlElement("OcrRegion1Y")]
+    public int OcrRegion1Y { get; set; }
+    [XmlElement("OcrRegion1Width")]
+    public int OcrRegion1Width { get; set; }
+    [XmlElement("OcrRegion1Height")]
+    public int OcrRegion1Height { get; set; }
+
+    [XmlElement("OcrRegion2X")]
+    public int OcrRegion2X { get; set; }
+    [XmlElement("OcrRegion2Y")]
+    public int OcrRegion2Y { get; set; }
+    [XmlElement("OcrRegion2Width")]
+    public int OcrRegion2Width { get; set; }
+    [XmlElement("OcrRegion2Height")]
+    public int OcrRegion2Height { get; set; }
 }
 
 public static class ConfigLoader
@@ -131,7 +152,10 @@ public static class ConfigLoader
             CheckIntervalMs = 3000,
             MatchTolerance = 30,
             DebugMode = false,
-            ClickDelayMs = 3000
+            ClickDelayMs = 3000,
+            OcrEnabled = false,
+            OcrRegion1X = 0, OcrRegion1Y = 0, OcrRegion1Width = 40, OcrRegion1Height = 20,
+            OcrRegion2X = 0, OcrRegion2Y = 0, OcrRegion2Width = 40, OcrRegion2Height = 20
         };
 
         var serializer = new XmlSerializer(typeof(AutoClickerConfig));
@@ -146,6 +170,7 @@ class AutoClicker
     private readonly ImageMatcher _imageMatcher;
     private readonly MouseController _mouseController;
     private readonly Bitmap _templateImage;
+    private readonly OcrReader? _ocrReader;
 
     public AutoClicker(AutoClickerConfig config)
     {
@@ -153,6 +178,8 @@ class AutoClicker
         _imageMatcher = new ImageMatcher();
         _mouseController = new MouseController();
         _templateImage = new Bitmap(config.TemplateImagePath);
+        if (config.OcrEnabled)
+            _ocrReader = new OcrReader();
     }
 
     public async Task StartAsync()
@@ -189,6 +216,23 @@ class AutoClicker
                     screenshot.Save(debugPath);
                 }
 
+                // OCR: preberi dve številki
+                if (_config.OcrEnabled && _ocrReader != null)
+                {
+                    using var ocr1 = ScreenCapture.CaptureRegion(_config.OcrRegion1X, _config.OcrRegion1Y, _config.OcrRegion1Width, _config.OcrRegion1Height);
+                    using var ocr2 = ScreenCapture.CaptureRegion(_config.OcrRegion2X, _config.OcrRegion2Y, _config.OcrRegion2Width, _config.OcrRegion2Height);
+
+                    if (_config.DebugMode)
+                    {
+                        ocr1.Save($"debug_screenshots/ocr1_{checkCount:D4}.png");
+                        ocr2.Save($"debug_screenshots/ocr2_{checkCount:D4}.png");
+                    }
+
+                    string val1 = _ocrReader.ReadNumber(ocr1, _config.DebugMode ? $"debug_screenshots/ocr1_{checkCount:D4}_prep.png" : null);
+                    string val2 = _ocrReader.ReadNumber(ocr2, _config.DebugMode ? $"debug_screenshots/ocr2_{checkCount:D4}_prep.png" : null);
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] OCR → Številka 1: {val1}  |  Številka 2: {val2}");
+                }
+
                 // Preveri, če se slika ujema
                 var matchResult = _imageMatcher.IsMatchWithDetails(screenshot, _templateImage, _config.MatchTolerance);
 
@@ -202,7 +246,7 @@ class AutoClicker
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Klikam na ({_config.ClickX}, {_config.ClickY})");
 
                     // Premakni miško in klikni
-                    _mouseController.Click(_config.ClickX, _config.ClickY);
+                    //_mouseController.Click(_config.ClickX, _config.ClickY);
                 }
                 else
                 {
@@ -228,6 +272,7 @@ class AutoClicker
         }
 
         _templateImage.Dispose();
+        _ocrReader?.Dispose();
         Console.WriteLine($"\nZaključeno. Skupaj pregledov: {checkCount}, Ujemanj: {matchCount}");
     }
 }

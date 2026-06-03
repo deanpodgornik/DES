@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoClickerConfig>
   <!-- Koordinate kjer iščemo sliko -->
-  <SearchX>1141</SearchX>
-  <SearchY>534</SearchY>
+  <SearchX>1146</SearchX>
+  <SearchY>545</SearchY>
 
   <!-- Velikost območja za iskanje -->
-  <SearchWidth>138</SearchWidth>
-  <SearchHeight>67</SearchHeight>
+  <SearchWidth>141</SearchWidth>
+  <SearchHeight>69</SearchHeight>
 
   <!-- Koordinate kamor kliknemo, če najdemo sliko -->
   <ClickX>1895</ClickX>
-  <ClickY>17</ClickY>
+  <ClickY>25</ClickY>
 
   <!-- Pot do slike, ki jo iščemo -->
   <TemplateImagePath>template.png</TemplateImagePath>
@@ -22,8 +22,23 @@
   <MatchTolerance>30</MatchTolerance>
 
   <!-- Debug mode - shrani screenshote za analizo (true/false) -->
-  <DebugMode>false</DebugMode>
+  <DebugMode>true</DebugMode>
 
   <!-- Zamik pred klikom po ujemanju v milisekundah (3000 = 3 sekunde) -->
   <ClickDelayMs>3000</ClickDelayMs>
+
+  <!-- OCR: branje številk z zaslona (true/false) -->
+  <OcrEnabled>true</OcrEnabled>
+
+  <!-- OCR regija 1 - koordinate in velikost prve številke -->
+  <OcrRegion1X>1100</OcrRegion1X>
+  <OcrRegion1Y>545</OcrRegion1Y>
+  <OcrRegion1Width>43</OcrRegion1Width>
+  <OcrRegion1Height>34</OcrRegion1Height>
+
+  <!-- OCR regija 2 - koordinate in velikost druge številke -->
+  <OcrRegion2X>1100</OcrRegion2X>
+  <OcrRegion2Y>579</OcrRegion2Y>
+  <OcrRegion2Width>43</OcrRegion2Width>
+  <OcrRegion2Height>34</OcrRegion2Height>
 </AutoClickerConfig>
