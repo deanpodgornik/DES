@@ -232,7 +232,7 @@ class AutoClicker
             Console.WriteLine($"Druga template slika naložena: {config.TemplateNotValidImagePath}");
         }
         if (config.OcrEnabled)
-            _ocrReader = new OcrReader();
+            _ocrReader = new OcrReader(Path.Combine(AppContext.BaseDirectory, "tessdata"));
         if (config.DisplayEnabled)
         {
             _display = new Cd7220Display(config.DisplayPort);
