@@ -215,6 +215,7 @@ class AutoClicker
     private readonly Bitmap? _template2Image;
     private readonly OcrReader? _ocrReader;
     private readonly Cd7220Display? _display;
+    private string? _lastDisplayMessage;
 
     public AutoClicker(AutoClickerConfig config)
     {
@@ -245,6 +246,25 @@ class AutoClicker
                 _display = null;
             }
         }
+    }
+
+    private void ShowDisplay(string message)
+    {
+        if (message == _lastDisplayMessage) return;
+        _lastDisplayMessage = message;
+        _display?.ShowMessage(message);
+        if (_config.DebugMode)
+            Console.WriteLine($"[CD7220] Prikaz: '{message}'");
+    }
+
+    private void ShowDisplayValues(string line1, string line2)
+    {
+        string key = line1 + "|" + line2;
+        if (key == _lastDisplayMessage) return;
+        _lastDisplayMessage = key;
+        _display?.ShowValues(line1, line2);
+        if (_config.DebugMode)
+            Console.WriteLine($"[CD7220] Prikaz vrednosti: '{line1}' / '{line2}'");
     }
 
     public async Task StartAsync()
@@ -309,9 +329,7 @@ class AutoClicker
                         if (_display != null && val1 != "?" && val1 != "N/A" && val2 != "?" && val2 != "N/A")
                         {
                             int allEntries = int.Parse(val1) + int.Parse(val2);
-                            bool ok = _display.ShowValues("Vhodov: "+val1+"/"+allEntries.ToString(), "");
-                            if (_config.DebugMode)
-                                Console.WriteLine($"[CD7220] Prikaz {(ok ? "uspešen" : "NAPAKA")}: '{val1}' / '{val2}'");
+                            ShowDisplayValues("Vhodov: "+val1+"/"+allEntries.ToString(), "");
                         }
                     }                    
 
@@ -339,9 +357,7 @@ class AutoClicker
                     {
                         matchCount++;
                         Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE (template2) #{matchCount}!");
-                        _display?.ShowMessage(_config.DisplayMessageNotValid);
-                        if (_config.DebugMode)
-                            Console.WriteLine($"[CD7220] Prikaz template2: '{_config.DisplayMessageNotValid}'");
+                        ShowDisplay(_config.DisplayMessageNotValid);
                     }
                     else
                     {
@@ -357,7 +373,7 @@ class AutoClicker
                         }
 
                         //Prikaži pozdravno sporočilo
-                        _display?.ShowMessage(_config.DisplayGreeting);
+                        ShowDisplay(_config.DisplayGreeting);
                     }
                 }
                 else
