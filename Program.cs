@@ -146,6 +146,21 @@ public class AutoClickerConfig
 
     [XmlElement("DisplayGreeting")]
     public string DisplayGreeting { get; set; } = "Pozdravljeni!";
+
+    [XmlElement("TemplateNotValidImagePath")]
+    public string TemplateNotValidImagePath { get; set; } = "";
+
+    [XmlElement("Search2X")]
+    public int Search2X { get; set; }
+    [XmlElement("Search2Y")]
+    public int Search2Y { get; set; }
+    [XmlElement("Search2Width")]
+    public int Search2Width { get; set; }
+    [XmlElement("Search2Height")]
+    public int Search2Height { get; set; }
+
+    [XmlElement("DisplayMessageNotValid")]
+    public string DisplayMessageNotValid { get; set; } = "Dobrodošli!";
 }
 
 public static class ConfigLoader
@@ -179,7 +194,10 @@ public static class ConfigLoader
             ClickDelayMs = 3000,
             OcrEnabled = false,
             OcrRegion1X = 0, OcrRegion1Y = 0, OcrRegion1Width = 40, OcrRegion1Height = 20,
-            OcrRegion2X = 0, OcrRegion2Y = 0, OcrRegion2Width = 40, OcrRegion2Height = 20
+            OcrRegion2X = 0, OcrRegion2Y = 0, OcrRegion2Width = 40, OcrRegion2Height = 20,
+            TemplateNotValidImagePath = "",
+            Search2X = 100, Search2Y = 100, Search2Width = 50, Search2Height = 50,
+            DisplayMessageNotValid = "Dobrodošli!"
         };
 
         var serializer = new XmlSerializer(typeof(AutoClickerConfig));
@@ -194,6 +212,7 @@ class AutoClicker
     private readonly ImageMatcher _imageMatcher;
     private readonly MouseController _mouseController;
     private readonly Bitmap _templateImage;
+    private readonly Bitmap? _template2Image;
     private readonly OcrReader? _ocrReader;
     private readonly Cd7220Display? _display;
 
@@ -203,6 +222,11 @@ class AutoClicker
         _imageMatcher = new ImageMatcher();
         _mouseController = new MouseController();
         _templateImage = new Bitmap(config.TemplateImagePath);
+        if (!string.IsNullOrEmpty(config.TemplateNotValidImagePath) && File.Exists(config.TemplateNotValidImagePath))
+        {
+            _template2Image = new Bitmap(config.TemplateNotValidImagePath);
+            Console.WriteLine($"Druga template slika naložena: {config.TemplateNotValidImagePath}");
+        }
         if (config.OcrEnabled)
             _ocrReader = new OcrReader();
         if (config.DisplayEnabled)
@@ -297,11 +321,44 @@ class AutoClicker
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Klikam na ({_config.ClickX}, {_config.ClickY})");
 
                     // Premakni miško in klikni
-                    //_mouseController.Click(_config.ClickX, _config.ClickY);
-
-                    //Prikaži pozdravno sporočilo
-                    _display?.ShowMessage(_config.DisplayGreeting);
+                    _mouseController.Click(_config.ClickX, _config.ClickY);
                     
+                }
+                else if (_template2Image != null)
+                {
+                    // PREVERI ČE KARTA NI VELJAVNA (template2)
+                    //zajameš drugo območje, kjer se nahaja template2
+
+                    using var screenshot2 = ScreenCapture.CaptureRegion(
+                        _config.Search2X, _config.Search2Y, _config.Search2Width, _config.Search2Height);
+                    if (_config.DebugMode)
+                        screenshot2.Save($"debug_screenshots/capture2_{checkCount:D4}.png");
+
+                    var match2 = _imageMatcher.IsMatchWithDetails(screenshot2, _template2Image, _config.MatchTolerance);
+                    if (match2.IsMatch)
+                    {
+                        matchCount++;
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE (template2) #{matchCount}!");
+                        _display?.ShowMessage(_config.DisplayMessageNotValid);
+                        if (_config.DebugMode)
+                            Console.WriteLine($"[CD7220] Prikaz template2: '{_config.DisplayMessageNotValid}'");
+                    }
+                    else
+                    {
+                        if (_config.DebugMode)
+                        {
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✗ Preverjanje #{checkCount} - NI ujemanja (niti template2)");
+                            Console.WriteLine($"  → Najv. razlika: R={matchResult.MaxDiffR}, G={matchResult.MaxDiffG}, B={matchResult.MaxDiffB}");
+                            Console.WriteLine($"  → Screenshot: debug_screenshots/capture_{checkCount:D4}.png");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✗ Preverjanje #{checkCount} - slika se ne ujema");
+                        }
+
+                        //Prikaži pozdravno sporočilo
+                        _display?.ShowMessage(_config.DisplayGreeting);
+                    }
                 }
                 else
                 {
@@ -327,6 +384,7 @@ class AutoClicker
         }
 
         _templateImage.Dispose();
+        _template2Image?.Dispose();
         _ocrReader?.Dispose();
         _display?.Dispose();
         Console.WriteLine($"\nZaključeno. Skupaj pregledov: {checkCount}, Ujemanj: {matchCount}");

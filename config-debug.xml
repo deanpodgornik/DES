@@ -46,4 +46,12 @@
   <DisplayEnabled>true</DisplayEnabled>
   <DisplayPort>COM3</DisplayPort>
   <DisplayGreeting>Pozdravljeni v DES-u</DisplayGreeting>
+
+  <!-- Druga template slika (preverjena, če prva ne ujema) -->
+  <TemplateNotValidImagePath>template-not-valid.png</TemplateNotValidImagePath>
+  <Search2X>746</Search2X>
+  <Search2Y>693</Search2Y>
+  <Search2Width>303</Search2Width>
+  <Search2Height>21</Search2Height>
+  <DisplayMessageNotValid>Karta ni veljavna!</DisplayMessageNotValid>
 </AutoClickerConfig>
