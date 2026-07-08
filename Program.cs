@@ -29,7 +29,7 @@ class Program
         {
             config = ConfigLoader.Load(configPath);
 
-            if (config.DebugMode)
+            if (config.UseDebugConfigFile)
             {
                 string debugConfigPath = "config-debug.xml";
                 if (File.Exists(debugConfigPath))
@@ -39,7 +39,7 @@ class Program
                 }
                 else
                 {
-                    Console.WriteLine($"OPOZORILO: Debug mode je vključen, vendar '{debugConfigPath}' ne obstaja. Uporaba '{configPath}'.");
+                    Console.WriteLine($"OPOZORILO: UseDebugConfigFile je vključen, vendar '{debugConfigPath}' ne obstaja. Uporaba '{configPath}'.");
                 }
             }
 
@@ -113,6 +113,9 @@ public class AutoClickerConfig
 
     [XmlElement("DebugMode")]
     public bool DebugMode { get; set; }
+
+    [XmlElement("UseDebugConfigFile")]
+    public bool UseDebugConfigFile { get; set; }
 
     [XmlElement("ClickDelayMs")]
     public int ClickDelayMs { get; set; }
