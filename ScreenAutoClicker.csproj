@@ -17,7 +17,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="tessdata\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="tessdata\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Target Name="CopyTesseractNativeDlls" AfterTargets="Publish">
+    <ItemGroup>
+      <TesseractX64 Include="$(NuGetPackageRoot)tesseract\5.2.0\x64\*" />
+      <TesseractX86 Include="$(NuGetPackageRoot)tesseract\5.2.0\x86\*" />
+      <TesseractData Include="$(MSBuildProjectDirectory)\tessdata\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(TesseractX64)" DestinationFolder="$(PublishDir)x64\" />
+    <Copy SourceFiles="@(TesseractX86)" DestinationFolder="$(PublishDir)x86\" />
+    <Copy SourceFiles="@(TesseractData)" DestinationFolder="$(PublishDir)tessdata\" />
+  </Target>
 
 </Project>
