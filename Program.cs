@@ -28,6 +28,21 @@ class Program
         try
         {
             config = ConfigLoader.Load(configPath);
+
+            if (config.DebugMode)
+            {
+                string debugConfigPath = "config-debug.xml";
+                if (File.Exists(debugConfigPath))
+                {
+                    config = ConfigLoader.Load(debugConfigPath);
+                    configPath = debugConfigPath;
+                }
+                else
+                {
+                    Console.WriteLine($"OPOZORILO: Debug mode je vključen, vendar '{debugConfigPath}' ne obstaja. Uporaba '{configPath}'.");
+                }
+            }
+
             Console.WriteLine($"Konfiguracija naložena iz: {configPath}");
         }
         catch (Exception ex)
