@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/FontAwesome/css/all.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootbox.all.min.js"></script>
+    <script src="js/thooClock.js"></script>
+    <script src="js/global.js"></script>
+    <script src="js/index.js"></script>
+</head>
+
+<body>
+    <div id="divControllerCode"></div>
+    <!--- Middle border --->
+    <div class="middleBorder"></div>
+    <!--- Bottom link --->
+    <div class="bottomLink">www.1klik.com</div>
+    <div class="row mainRow">
+        <!---------------------------------------------- LEFT SIDE ---------------------------------------------->
+        <div class="col side left">
+            <!--- Left content --->
+            <div class="centerDiv h-100">
+                <div>
+                    <div id="clock" style="margin-bottom: 20px; margin-top: -40px;"></div>
+                    <div class="checkInText">TRENUTNI ČAS</div>
+                    <div id="currentTime" class="time"></div>
+                    <div id="currentDate" class="date"></div>
+                </div>
+            </div>            
+        </div>            
+        <!---------------------------------------------- RIGHT SIDE ---------------------------------------------->
+        <div class="col side right">
+            <!--- Right content --->
+            <div class="content">
+                <div class="password">
+                    <!--- BottomLine --->
+                    <div class="bottomLine"></div>
+                    <div id="password" class="h-100 centerDiv">
+                        <i class="far fa-circle"></i>&nbsp;<i class="far fa-circle"></i>&nbsp;<i class="far fa-circle"></i>&nbsp;<i class="far fa-circle"></i>
+                    </div>                        
+                    <div id="nx" class="centerDiv backspace " onclick="addPassword('x')"><i class="fas fa-backspace"></i></div>
+                </div>
+                <div class="keypadContainer centerDiv">
+                    <div class="keypad">
+                        <div class="row m-0">
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n1" class="keypadImage n1" onclick="addPassword('1')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n2" class="keypadImage n2" onclick="addPassword('2')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n3" class="keypadImage n3" onclick="addPassword('3')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n4" class="keypadImage n4" onclick="addPassword('4')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n5" class="keypadImage n5" onclick="addPassword('5')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n6" class="keypadImage n6" onclick="addPassword('6')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n7" class="keypadImage n7" onclick="addPassword('7')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n8" class="keypadImage n8" onclick="addPassword('8')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n9" class="keypadImage n9" onclick="addPassword('9')"></div></div></div>
+                            <div class="col-4 keypadButton"><div class="keypadSquare"><div id="n0" class="keypadImage n0" onclick="addPassword('0')"></div></div></div>
+                            <div class="col-8 keypadButton"><div class="keypadSquare confirm"><div id="nc" class="keypadImage nc" onclick="addPassword('c')"></div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+</body>
+
+</html>
