@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=800, initial-scale=1, user-scalable=no" />
+    <title>Entrance refused</title>
+    <link rel="stylesheet" href="assets/scss/default.css">
+    <script src="assets/js/jquery-1.11.3.js"></script>
+    <script>
+        window.onload = function () {
+
+            var time = getParameterByName("time", window.location.href);
+            var idCompany92 = getParameterByName("idCompany92", window.location.href);
+
+            $("#MessageText").html(getParameterByName("MessageText", window.location.href));
+            $("#CompanyLogo").html('<img src="assets/img/logo_3.png" style="max-width: 360px; max-height: 120px;" />');
+
+            setTimeout(function () {
+                window.location.href = "index.html";
+
+            }, time);
+        }
+
+    </script>
+</head>
+
+<body>
+    <div id="CompanyLogo" style="height: 160px; margin-top: 40px;">
+    </div>
+
+    <div style="font-size:2em; font-weight: bold; height: 100px; margin: 0px 20px 0px 20px;" id="MessageText">
+
+    </div>
+
+</body>
+<script src="assets/js/systemFunctions-1.0.1.js"></script>
+</html>

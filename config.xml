@@ -30,20 +30,11 @@
   <!-- Zamik pred klikom po ujemanju v milisekundah (3000 = 3 sekunde) -->
   <ClickDelayMs>3000</ClickDelayMs>
 
-  <!-- OCR: branje številk z zaslona (true/false) -->
-  <OcrEnabled>true</OcrEnabled>
-
-  <!-- OCR regija 1 - koordinate in velikost prve številke -->
-  <OcrRegion1X>1099</OcrRegion1X>
-  <OcrRegion1Y>497</OcrRegion1Y>
-  <OcrRegion1Width>43</OcrRegion1Width>
-  <OcrRegion1Height>34</OcrRegion1Height>
-
-  <!-- OCR regija 2 - koordinate in velikost druge številke -->
-  <OcrRegion2X>1100</OcrRegion2X>
-  <OcrRegion2Y>532</OcrRegion2Y>
-  <OcrRegion2Width>43</OcrRegion2Width>
-  <OcrRegion2Height>34</OcrRegion2Height>
+  <!-- Podatkovna baza: iskanje prostih vstopov po ID-ju iz bralnika (true/false) -->
+  <DbEnabled>true</DbEnabled>
+  <DbConnectionString>Server=localhost\SQLEXPRESS;Database=SIS;Trusted_Connection=True;TrustServerCertificate=True;</DbConnectionString>
+  <!-- Koliko zadnjih znakov zajetega ID-ja se uporabi pri iskanju v bazi (0 = natančno ujemanje celotne kode) -->
+  <DbCodeSearchLength>10</DbCodeSearchLength>
 
   <!-- CD-7220 VFD prikazovalnik cen (true/false) -->
   <DisplayEnabled>true</DisplayEnabled>

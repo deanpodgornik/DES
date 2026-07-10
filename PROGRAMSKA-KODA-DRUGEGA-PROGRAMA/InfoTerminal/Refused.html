@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=800, initial-scale=1, user-scalable=no" />
+	  <title>Entrance refused</title>
+	<link rel="stylesheet" href="assets/scss/default.css">
+    <script src="assets/js/jquery-1.11.3.js"></script>
+    <script>
+        window.onload = function () {
+
+            	var time = getParameterByName("time", window.location.href);
+	var idCompany92 = getParameterByName("idCompany92", window.location.href);
+			
+			$("#MessageText").html(getParameterByName("MessageText", window.location.href));
+$("#CompanyLogo").html('<img src="assets/img/logo_3.jpg" style="max-width: 360px; max-height: 120px;" />');
+
+            setTimeout(function () {
+                window.location.href = "index.html";
+
+            }, time);
+        }
+
+        function getParameterByName(name, text) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regexS = "[\\?&]" + name + "=([^&#]*)";
+            var regex = new RegExp(regexS);
+            var results = regex.exec(text);
+            if (results == null)
+                return "";
+            else
+                return decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+    </script>
+</head>
+
+<body>
+    <div id="CompanyLogo" style="height: 160px;">
+    </div>
+
+    <div style="font-size:2em; font-weight: bold; height: 100px; margin: 0px 20px 0px 20px;" id="MessageText">
+        
+    </div>
+
+    <div style="margin-top: 0px; height:220px; ">
+        <img src="assets/img/GoToReception_Animation.gif" style="max-height:200px" />
+    </div>
+</body>
+
+
+</html>

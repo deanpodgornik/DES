@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html style="height:100%;padding:0px;margin:0px;">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=320, initial-scale=0.45, user-scalable=no" />
+
+    <script src="scripts/jquery-1.11.3.js"></script>
+    <script>
+
+        window.onload = function () {
+            var idCompany92 = getParameterByName("idCompany92", window.location.href);
+            $("#ValidTill").html(getParameterByName("ValidTill", window.location.href));
+            var time = getParameterByName("time", window.location.href);
+
+            $("#CompanyLogo").html('<img src="images/logo_' + idCompany92 + '.png" style="max-width: 360px; max-height: 120px;" />');
+
+
+            setTimeout(function () {
+                window.location.href = "index.html";
+            }, time);
+
+        }
+        function getParameterByName(name, text) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regexS = "[\\?&]" + name + "=([^&#]*)";
+            var regex = new RegExp(regexS);
+            var results = regex.exec(text);
+            if (results == null)
+                return "";
+            else
+                return decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+    </script>
+</head>
+
+<body>
+
+    <audio autoplay>
+        <source src="assets/audio/human_toddler_20_months_old_laughing.mp3">
+    </audio>
+
+    <div id="CompanyLogo" style="max-width: 360px; max-height: 120px; margin: 20px auto 20px auto">
+    </div>
+
+    <div style="font-size:2em; font-weight: bold;">
+        VAŠA KARTA VELJA DO
+    </div>
+
+    <div style="font-size:3em; font-weight: bold;" id="ValidTill">
+    </div>
+    <div>
+        <img src="assets/img/arrow.gif" width="170" />
+    </div>
+</body>
+
+</html>

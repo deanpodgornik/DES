@@ -120,26 +120,18 @@ public class AutoClickerConfig
     [XmlElement("ClickDelayMs")]
     public int ClickDelayMs { get; set; }
 
-    [XmlElement("OcrEnabled")]
-    public bool OcrEnabled { get; set; }
+    [XmlElement("DbEnabled")]
+    public bool DbEnabled { get; set; }
 
-    [XmlElement("OcrRegion1X")]
-    public int OcrRegion1X { get; set; }
-    [XmlElement("OcrRegion1Y")]
-    public int OcrRegion1Y { get; set; }
-    [XmlElement("OcrRegion1Width")]
-    public int OcrRegion1Width { get; set; }
-    [XmlElement("OcrRegion1Height")]
-    public int OcrRegion1Height { get; set; }
+    [XmlElement("DbConnectionString")]
+    public string DbConnectionString { get; set; } = "";
 
-    [XmlElement("OcrRegion2X")]
-    public int OcrRegion2X { get; set; }
-    [XmlElement("OcrRegion2Y")]
-    public int OcrRegion2Y { get; set; }
-    [XmlElement("OcrRegion2Width")]
-    public int OcrRegion2Width { get; set; }
-    [XmlElement("OcrRegion2Height")]
-    public int OcrRegion2Height { get; set; }
+    /// <summary>
+    /// How many characters from the END of the keyboard-captured code to use
+    /// as the database search key.  0 = use the full captured string.
+    /// </summary>
+    [XmlElement("DbCodeSearchLength")]
+    public int DbCodeSearchLength { get; set; } = 10;
 
     [XmlElement("DisplayEnabled")]
     public bool DisplayEnabled { get; set; }
@@ -195,9 +187,9 @@ public static class ConfigLoader
             MatchTolerance = 30,
             DebugMode = false,
             ClickDelayMs = 3000,
-            OcrEnabled = false,
-            OcrRegion1X = 0, OcrRegion1Y = 0, OcrRegion1Width = 40, OcrRegion1Height = 20,
-            OcrRegion2X = 0, OcrRegion2Y = 0, OcrRegion2Width = 40, OcrRegion2Height = 20,
+            DbEnabled = false,
+            DbConnectionString = "Server=localhost\\SQLEXPRESS;Database=SIS;Trusted_Connection=True;TrustServerCertificate=True;",
+            DbCodeSearchLength = 10,
             TemplateNotValidImagePath = "",
             Search2X = 100, Search2Y = 100, Search2Width = 50, Search2Height = 50,
             DisplayMessageNotValid = "Dobrodošli!"
@@ -216,7 +208,8 @@ class AutoClicker
     private readonly MouseController _mouseController;
     private readonly Bitmap _templateImage;
     private readonly Bitmap? _template2Image;
-    private readonly OcrReader? _ocrReader;
+    private readonly KeyboardHook? _keyboardHook;
+    private readonly DatabaseService? _dbService;
     private readonly Cd7220Display? _display;
     private string? _lastDisplayMessage;
 
@@ -231,8 +224,12 @@ class AutoClicker
             _template2Image = new Bitmap(config.TemplateNotValidImagePath);
             Console.WriteLine($"Druga template slika naložena: {config.TemplateNotValidImagePath}");
         }
-        if (config.OcrEnabled)
-            _ocrReader = new OcrReader(Path.Combine(AppContext.BaseDirectory, "tessdata"));
+        if (config.DbEnabled)
+        {
+            _keyboardHook = new KeyboardHook();
+            _dbService = new DatabaseService(config.DbConnectionString, config.DbCodeSearchLength);
+            Console.WriteLine("[KB] Globalni tipkovniški hook aktiven");
+        }
         if (config.DisplayEnabled)
         {
             _display = new Cd7220Display(config.DisplayPort);
@@ -309,30 +306,34 @@ class AutoClicker
 
                 if (matchResult.IsMatch)
                 {
+                    //KARTA JE VELJAVNA (template1)
+                    
                     matchCount++;
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}!");
 
-                    // OCR: preberi dve številki
-                    if (_config.OcrEnabled && _ocrReader != null)
+                    // Iskanje podatkov iz baze po ID-ju z bralnika (tipkovnica)
+                    if (_config.DbEnabled && _dbService != null)
                     {
-                        using var ocr1 = ScreenCapture.CaptureRegion(_config.OcrRegion1X, _config.OcrRegion1Y, _config.OcrRegion1Width, _config.OcrRegion1Height);
-                        using var ocr2 = ScreenCapture.CaptureRegion(_config.OcrRegion2X, _config.OcrRegion2Y, _config.OcrRegion2Width, _config.OcrRegion2Height);
-
-                        if (_config.DebugMode)
+                        string capturedCode = _keyboardHook?.LastCode ?? "";
+                        if (!string.IsNullOrEmpty(capturedCode))
                         {
-                            ocr1.Save($"debug_screenshots/ocr1_{checkCount:D4}.png");
-                            ocr2.Save($"debug_screenshots/ocr2_{checkCount:D4}.png");
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] KB → Zajet ID: '{capturedCode}'");
+                            var info = await _dbService.GetUserEntriesAsync(capturedCode);
+                            if (info != null)
+                            {
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → {info.Name} | Prostih vstopov: {info.RemainingEntries}/{info.TotalEntries}");
+                                if (_display != null)
+                                    ShowDisplayValues($"Vstopov: {info.RemainingEntries:0}/{info.TotalEntries:0}", info.Name);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → Uporabnik z ID '{capturedCode}' ni najden.");
+                            }
                         }
-
-                        string val1 = _ocrReader.ReadNumber(ocr1, _config.DebugMode ? $"debug_screenshots/ocr1_{checkCount:D4}_prep.png" : null);
-                        string val2 = _ocrReader.ReadNumber(ocr2, _config.DebugMode ? $"debug_screenshots/ocr2_{checkCount:D4}_prep.png" : null);
-                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] OCR → Številka 1: {val1}  |  Številka 2: {val2}");
-
-                        // Zapiši na CD-7220 prikazovalnik, če je OCR uspešen
-                        if (_display != null && val1 != "?" && val1 != "N/A" && val2 != "?" && val2 != "N/A")
+                        else
                         {
-                            int allEntries = int.Parse(val1) + int.Parse(val2);
-                            ShowDisplayValues("Vhodov: "+val1+"/"+allEntries.ToString(), "");
+                            if (_config.DebugMode)
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] KB → Še ni zajetega ID-ja.");
                         }
                     }                    
 
@@ -342,7 +343,8 @@ class AutoClicker
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Klikam na ({_config.ClickX}, {_config.ClickY})");
 
                     // Premakni miško in klikni
-                    _mouseController.Click(_config.ClickX, _config.ClickY);
+                    //TODO: Odkomentiraj spodnjo vrstico, preden narediš deployment, da bo dejansko kliknilo na zaslonu
+                    //_mouseController.Click(_config.ClickX, _config.ClickY);
                     
                 }
                 else if (_template2Image != null)
@@ -404,7 +406,7 @@ class AutoClicker
 
         _templateImage.Dispose();
         _template2Image?.Dispose();
-        _ocrReader?.Dispose();
+        _keyboardHook?.Dispose();
         _display?.Dispose();
         Console.WriteLine($"\nZaključeno. Skupaj pregledov: {checkCount}, Ujemanj: {matchCount}");
     }
