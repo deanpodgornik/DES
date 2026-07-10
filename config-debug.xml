@@ -13,7 +13,7 @@
   <ClickY>25</ClickY>
 
   <!-- Pot do slike, ki jo iščemo -->
-  <TemplateImagePath>template.png</TemplateImagePath>
+  <TemplateImagePath>template-debug.png</TemplateImagePath>
 
   <!-- Interval preverjanja v milisekundah (3000 = 3 sekunde) -->
   <CheckIntervalMs>1000</CheckIntervalMs>
