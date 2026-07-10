@@ -20,6 +20,9 @@
     <None Include="config.xml" CopyToPublishDirectory="Always" />
     <None Include="config-debug.xml" CopyToPublishDirectory="Always" />
     <None Include="config.example.xml" CopyToPublishDirectory="Always" />
+    <None Include="template.png" CopyToPublishDirectory="Always" />
+    <None Include="template-not-valid.png" CopyToPublishDirectory="Always" />
+    <None Include="template-debug.png" CopyToPublishDirectory="Always" />
   </ItemGroup>
 
 </Project>
