@@ -32,7 +32,7 @@
 
   <!-- Podatkovna baza: iskanje prostih vstopov po ID-ju iz bralnika (true/false) -->
   <DbEnabled>true</DbEnabled>
-  <DbConnectionString>Server=localhost\SQLEXPRESS;Database=SIS;Trusted_Connection=True;TrustServerCertificate=True;</DbConnectionString>
+  <DbConnectionString>Server=DESKTOP-HANTL1S\MIKROPOS;Database=SIS;Trusted_Connection=True;TrustServerCertificate=True;</DbConnectionString>
   <!-- Koliko zadnjih znakov zajetega ID-ja se uporabi pri iskanju v bazi (0 = natančno ujemanje celotne kode) -->
   <DbCodeSearchLength>10</DbCodeSearchLength>
 
@@ -49,8 +49,8 @@
   <Search2Height>21</Search2Height>
   <DisplayMessageNotValid>Karta ni veljavna!</DisplayMessageNotValid>
   <!-- {0} = datum veljavnosti -->
-  <DisplayMessageTimeBased>Valid until: {0}</DisplayMessageTimeBased>
+  <DisplayMessageTimeBased>Valid: {0}</DisplayMessageTimeBased>
   <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi -->
   <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi, {2} = datum veljavnosti -->
-  <DisplayMessageEntries>Used entries: {0}/{1} until {2}</DisplayMessageEntries>
+  <DisplayMessageEntries>{0}/{1} until {2}</DisplayMessageEntries>
 </AutoClickerConfig>
