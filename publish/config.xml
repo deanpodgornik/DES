@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoClickerConfig>
+  <!-- Koordinate kjer iščemo sliko -->
+  <SearchX>1145</SearchX>
+  <SearchY>498</SearchY>
+
+  <!-- Velikost območja za iskanje -->
+  <SearchWidth>141</SearchWidth>
+  <SearchHeight>70</SearchHeight>
+
+  <!-- Koordinate kamor kliknemo, če najdemo sliko -->
+  <ClickX>1155</ClickX>
+  <ClickY>546</ClickY>
+
+  <!-- Pot do slike, ki jo iščemo -->
+  <TemplateImagePath>template.png</TemplateImagePath>
+
+  <!-- Interval preverjanja v milisekundah (3000 = 3 sekunde) -->
+  <CheckIntervalMs>1000</CheckIntervalMs>
+
+  <!-- Tolerance za ujemanje slik (0-255, nižje = bolj natančno) -->
+  <MatchTolerance>30</MatchTolerance>
+
+  <!-- Debug mode - shrani screenshote za analizo (true/false) -->
+  <DebugMode>false</DebugMode>
+
+  <!-- Uporabi config-debug.xml kot konfiguracijo, ko je DebugMode=true (true/false) -->
+  <UseDebugConfigFile>false</UseDebugConfigFile>
+
+  <!-- Zamik pred klikom po ujemanju v milisekundah (3000 = 3 sekunde) -->
+  <ClickDelayMs>3000</ClickDelayMs>
+
+  <!-- Podatkovna baza: iskanje prostih vstopov po ID-ju iz bralnika (true/false) -->
+  <DbEnabled>true</DbEnabled>
+  <DbConnectionString>Server=DESKTOP-HANTL1S\MIKROPOS;Database=SIS;Trusted_Connection=True;TrustServerCertificate=True;</DbConnectionString>
+  <!-- Koliko zadnjih znakov zajetega ID-ja se uporabi pri iskanju v bazi (0 = natančno ujemanje celotne kode) -->
+  <DbCodeSearchLength>10</DbCodeSearchLength>
+
+  <!-- CD-7220 VFD prikazovalnik cen (true/false) -->
+  <DisplayEnabled>true</DisplayEnabled>
+  <DisplayPort>COM4</DisplayPort>
+  <DisplayGreeting>Pozdravljeni v DES-u</DisplayGreeting>
+
+  <!-- Druga template slika (preverjena, če prva ne ujema) -->
+  <TemplateNotValidImagePath>template-not-valid.png</TemplateNotValidImagePath>
+  <Search2X>745</Search2X>
+  <Search2Y>645</Search2Y>
+  <Search2Width>303</Search2Width>
+  <Search2Height>21</Search2Height>
+  <DisplayMessageNotValid>Karta ni veljavna!</DisplayMessageNotValid>
+  <!-- {0} = datum veljavnosti -->
+  <DisplayMessageTimeBased>Valid: {0}</DisplayMessageTimeBased>
+  <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi -->
+  <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi, {2} = datum veljavnosti -->
+  <DisplayMessageEntries>{0}/{1} until {2}</DisplayMessageEntries>
+</AutoClickerConfig>

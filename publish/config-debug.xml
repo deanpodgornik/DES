@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoClickerConfig>
+  <!-- Koordinate kjer iščemo sliko -->
+  <SearchX>1146</SearchX>
+  <SearchY>545</SearchY>
+
+  <!-- Velikost območja za iskanje -->
+  <SearchWidth>141</SearchWidth>
+  <SearchHeight>69</SearchHeight>
+
+  <!-- Koordinate kamor kliknemo, če najdemo sliko -->
+  <ClickX>1895</ClickX>
+  <ClickY>25</ClickY>
+
+  <!-- Pot do slike, ki jo iščemo -->
+  <TemplateImagePath>template-debug.png</TemplateImagePath>
+
+  <!-- Interval preverjanja v milisekundah (3000 = 3 sekunde) -->
+  <CheckIntervalMs>1000</CheckIntervalMs>
+
+  <!-- Tolerance za ujemanje slik (0-255, nižje = bolj natančno) -->
+  <MatchTolerance>30</MatchTolerance>
+
+  <!-- Debug mode - shrani screenshote za analizo (true/false) -->
+  <DebugMode>false</DebugMode>
+
+  <!-- Zamik pred klikom po ujemanju v milisekundah (3000 = 3 sekunde) -->
+  <ClickDelayMs>3000</ClickDelayMs>
+
+  <!-- Podatkovna baza: iskanje prostih vstopov po ID-ju iz bralnika (true/false) -->
+  <DbEnabled>true</DbEnabled>
+  <DbConnectionString>Server=localhost\SQLEXPRESS;Database=SIS;Trusted_Connection=True;TrustServerCertificate=True;</DbConnectionString>
+  <!-- Koliko zadnjih znakov zajetega ID-ja se uporabi pri iskanju v bazi (0 = natančno ujemanje celotne kode) -->
+  <DbCodeSearchLength>10</DbCodeSearchLength>
+
+  <!-- CD-7220 VFD prikazovalnik cen (true/false) -->
+  <DisplayEnabled>true</DisplayEnabled>
+  <DisplayPort>COM3</DisplayPort>
+  <DisplayGreeting>Pozdravljeni v DES-u</DisplayGreeting>
+
+  <!-- Druga template slika (preverjena, če prva ne ujema) -->
+  <TemplateNotValidImagePath>template-not-valid.png</TemplateNotValidImagePath>
+  <Search2X>746</Search2X>
+  <Search2Y>693</Search2Y>
+  <Search2Width>303</Search2Width>
+  <Search2Height>21</Search2Height>
+  <DisplayMessageNotValid>Karta ni veljavna!</DisplayMessageNotValid>
+  <!-- {0} = datum veljavnosti -->
+  <DisplayMessageTimeBased>Valid until: {0}</DisplayMessageTimeBased>
+  <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi -->
+  <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi, {2} = datum veljavnosti -->
+  <DisplayMessageEntries>Used entries: {0}/{1} until {2}</DisplayMessageEntries>
+</AutoClickerConfig>
