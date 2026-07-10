@@ -49,5 +49,5 @@
   <DisplayMessageTimeBased>Valid until: {0}</DisplayMessageTimeBased>
   <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi -->
   <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi, {2} = datum veljavnosti -->
-  <DisplayMessageEntries>Vhodov: {0}/{1} do {2}</DisplayMessageEntries>
+  <DisplayMessageEntries>Used entries: {0}/{1} until {2}</DisplayMessageEntries>
 </AutoClickerConfig>
