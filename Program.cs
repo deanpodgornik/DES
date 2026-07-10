@@ -336,9 +336,9 @@ class AutoClicker
                                 }
                                 else
                                 {
-                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → {info.Name} | Vstopi: {info.UsedEntries:0}/{info.TotalEntries:0}");
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → {info.Name} | Vstopi: {info.UsedEntries + 1:0}/{info.TotalEntries:0}");
                                     if (_display != null)
-                                        ShowDisplayValues(string.Format(_config.DisplayMessageEntries, info.UsedEntries.ToString("0"), info.TotalEntries.ToString("0"), info.ValidTo.ToString("dd.MM.yy")), info.Name);
+                                        ShowDisplayValues(string.Format(_config.DisplayMessageEntries, (info.UsedEntries + 1).ToString("0"), info.TotalEntries.ToString("0"), info.ValidTo.ToString("dd.MM.yy")), info.Name);
                                 }
                             }
                             else
