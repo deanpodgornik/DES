@@ -156,7 +156,11 @@ public class AutoClickerConfig
 
     [XmlElement("DisplayMessageNotValid")]
     public string DisplayMessageNotValid { get; set; } = "Dobrodošli!";
-}
+    [XmlElement("DisplayMessageTimeBased")]
+    public string DisplayMessageTimeBased { get; set; } = "Velja do: {0}";
+
+    [XmlElement("DisplayMessageEntries")]
+    public string DisplayMessageEntries { get; set; } = "Vhodov: {0}/{1} do {2}";}
 
 public static class ConfigLoader
 {
@@ -192,7 +196,9 @@ public static class ConfigLoader
             DbCodeSearchLength = 10,
             TemplateNotValidImagePath = "",
             Search2X = 100, Search2Y = 100, Search2Width = 50, Search2Height = 50,
-            DisplayMessageNotValid = "Dobrodošli!"
+            DisplayMessageNotValid = "Dobrodošli!",
+            DisplayMessageTimeBased = "Velja do: {0}",
+            DisplayMessageEntries = "Vhodov: {0}/{1} do {2}"
         };
 
         var serializer = new XmlSerializer(typeof(AutoClickerConfig));
@@ -321,9 +327,19 @@ class AutoClicker
                             var info = await _dbService.GetUserEntriesAsync(capturedCode);
                             if (info != null)
                             {
-                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → {info.Name} | Prostih vstopov: {info.RemainingEntries}/{info.TotalEntries}");
-                                if (_display != null)
-                                    ShowDisplayValues($"Vstopov: {info.RemainingEntries:0}/{info.TotalEntries:0}", info.Name);
+                                if (info.Unlimited)
+                                {
+                                    string validTo = info.ValidTo.ToString("dd.MM.yyyy");
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → {info.Name} | Mesečna/letna kartica, veljavna do: {validTo}");
+                                    if (_display != null)
+                                        ShowDisplayValues(string.Format(_config.DisplayMessageTimeBased, validTo), info.Name);
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → {info.Name} | Vstopi: {info.UsedEntries:0}/{info.TotalEntries:0}");
+                                    if (_display != null)
+                                        ShowDisplayValues(string.Format(_config.DisplayMessageEntries, info.UsedEntries.ToString("0"), info.TotalEntries.ToString("0"), info.ValidTo.ToString("dd.MM.yy")), info.Name);
+                                }
                             }
                             else
                             {
@@ -343,8 +359,7 @@ class AutoClicker
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Klikam na ({_config.ClickX}, {_config.ClickY})");
 
                     // Premakni miško in klikni
-                    //TODO: Odkomentiraj spodnjo vrstico, preden narediš deployment, da bo dejansko kliknilo na zaslonu
-                    //_mouseController.Click(_config.ClickX, _config.ClickY);
+                    _mouseController.Click(_config.ClickX, _config.ClickY);
                     
                 }
                 else if (_template2Image != null)
