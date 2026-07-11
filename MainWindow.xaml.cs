@@ -282,13 +282,13 @@ public partial class MainWindow : Window
         string sql = $@"
             WITH Ranked AS (
                 SELECT c.Contact, c.Code, tc.Name AS CardType,
-                       CAST(CASE WHEN tc.Active=1 AND tsc.Active=1 AND tsc.DateTo >= GETDATE()
+                       CAST(CASE WHEN tc.Active >= 1 AND tsc.Active >= 1 AND tsc.DateTo >= GETDATE()
                                  THEN 1 ELSE 0 END AS BIT) AS IsActive,
                        tsc.DateTo,
                        ROW_NUMBER() OVER (
                            PARTITION BY tc.idContactUse, tc.Name
                            ORDER BY
-                               CASE WHEN tc.Active=1 AND tsc.Active=1 AND tsc.DateTo >= GETDATE()
+                               CASE WHEN tc.Active >= 1 AND tsc.Active >= 1 AND tsc.DateTo >= GETDATE()
                                     THEN 0 ELSE 1 END,
                                tsc.DateTo DESC
                        ) AS rn
