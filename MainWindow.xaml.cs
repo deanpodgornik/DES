@@ -60,10 +60,15 @@ public partial class MainWindow : Window
         ClockText.Text = DateTime.Now.ToString("d.M.yyyy HH:mm:ss");
     }
 
+    private const int MaxLogEntries = 1000;
+
     private void OnLogEntry(LogEntry entry)
     {
         Dispatcher.Invoke(() =>
         {
+            while (_logEntries.Count >= MaxLogEntries)
+                _logEntries.RemoveAt(0);
+
             _logEntries.Add(new LogEntryViewModel(entry));
             LogListBox.ScrollIntoView(_logEntries[^1]);
         });
