@@ -3,7 +3,9 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+using ClosedXML.Excel;
 using Microsoft.Data.SqlClient;
+using Microsoft.Win32;
 
 namespace ScreenAutoClicker;
 
@@ -346,5 +348,108 @@ public partial class MainWindow : Window
         Logger.OnLog -= OnLogEntry;
         _clockTimer.Stop();
         base.OnClosed(e);
+    }
+
+    private void ExportTable1Excel_Click(object sender, RoutedEventArgs e)
+        => ExportToExcel(_table1Rows, "Otroci");
+
+    private void ExportTable2Excel_Click(object sender, RoutedEventArgs e)
+        => ExportToExcel(_table2Rows, "Odrasli");
+
+    private static void ExportToExcel(ObservableCollection<CardTableRow> rows, string sheetName)
+    {
+        if (rows.Count == 0)
+        {
+            MessageBox.Show("Ni podatkov za izvoz.", "Izvoz", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var dlg = new SaveFileDialog
+        {
+            Title = "Shrani Excel datoteko",
+            Filter = "Excel datoteka (*.xlsx)|*.xlsx",
+            FileName = $"{sheetName}_{DateTime.Now:yyyy-MM-dd}"
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        using var wb = new XLWorkbook();
+        var ws = wb.Worksheets.Add(sheetName);
+
+        // Header row
+        ws.Cell(1, 1).Value = "Ime";
+        ws.Cell(1, 2).Value = "Koda";
+        ws.Cell(1, 3).Value = "Tip karte";
+        ws.Cell(1, 4).Value = "Status";
+        ws.Cell(1, 5).Value = "Veljavna do";
+
+        var headerRange = ws.Range(1, 1, 1, 5);
+        headerRange.Style.Font.Bold = true;
+        headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#1A1A2E");
+        headerRange.Style.Font.FontColor = XLColor.White;
+        headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+        // Data rows
+        for (int i = 0; i < rows.Count; i++)
+        {
+            var r = rows[i];
+            int row = i + 2;
+            ws.Cell(row, 1).Value = r.ContactName;
+            ws.Cell(row, 2).Value = r.Code;
+            ws.Cell(row, 3).Value = r.CardType;
+            ws.Cell(row, 4).Value = r.StatusText;
+            if (r.ValidToDate.HasValue)
+                ws.Cell(row, 5).Value = r.ValidToDate.Value;
+            else
+                ws.Cell(row, 5).Value = r.ValidTo;
+
+            // Color status cell
+            var statusCell = ws.Cell(row, 4);
+            if (r.IsActive)
+            {
+                statusCell.Style.Fill.BackgroundColor = XLColor.FromHtml("#D4EDDA");
+                statusCell.Style.Font.FontColor = XLColor.FromHtml("#155724");
+            }
+            else
+            {
+                statusCell.Style.Fill.BackgroundColor = XLColor.FromHtml("#F8D7DA");
+                statusCell.Style.Font.FontColor = XLColor.FromHtml("#721C24");
+            }
+            statusCell.Style.Font.Bold = true;
+
+            // Alternate row background
+            if (i % 2 == 1)
+            {
+                for (int c = 1; c <= 5; c++)
+                    if (c != 4) ws.Cell(row, c).Style.Fill.BackgroundColor = XLColor.FromHtml("#FAFAFA");
+            }
+        }
+
+        // Format date column
+        ws.Column(5).Style.DateFormat.Format = "dd.MM.yyyy";
+
+        // Auto-fit columns
+        ws.Columns().AdjustToContents();
+        ws.Column(1).Width = Math.Max(ws.Column(1).Width, 20);
+
+        // Freeze header
+        ws.SheetView.FreezeRows(1);
+
+        // Auto-filter
+        ws.Range(1, 1, 1, 5).SetAutoFilter();
+
+        try
+        {
+            wb.SaveAs(dlg.FileName);
+            var result = MessageBox.Show(
+                $"Datoteka shranjena:\n{dlg.FileName}\n\nAli jo želiš odpreti?",
+                "Izvoz uspešen", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            if (result == MessageBoxResult.Yes)
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    { FileName = dlg.FileName, UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Napaka pri shranjevanju:\n{ex.Message}", "Napaka", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }
