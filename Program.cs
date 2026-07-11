@@ -193,8 +193,7 @@ class AutoClicker
         if (message == _lastDisplayMessage) return;
         _lastDisplayMessage = message;
         _display?.ShowMessage(message);
-        if (_config.DebugMode)
-            Logger.Debug($"[CD7220] Prikaz: '{message}'");
+        Logger.Info($"[CD7220] Prikaz: '{message}'");
     }
 
     private void ShowDisplayValues(string line1, string line2)
@@ -203,8 +202,7 @@ class AutoClicker
         if (key == _lastDisplayMessage) return;
         _lastDisplayMessage = key;
         _display?.ShowValues(line1, line2);
-        if (_config.DebugMode)
-            Logger.Debug($"[CD7220] Prikaz vrednosti: '{line1}' / '{line2}'");
+        Logger.Info($"[CD7220] Prikaz: '{line1}' / '{line2}'");
     }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
@@ -257,14 +255,12 @@ class AutoClicker
                                     {
                                         string validTo = info.ValidTo.ToString("dd.MM.yyyy");
                                         Logger.Info($"DB → {info.Name} | Mesečna/letna kartica, veljavna do: {validTo}");
-                                        if (_display != null)
-                                            ShowDisplayValues(string.Format(_config.DisplayMessageTimeBased, validTo), info.Name);
+                                        ShowDisplayValues(string.Format(_config.DisplayMessageTimeBased, validTo), info.Name);
                                     }
                                     else
                                     {
                                         Logger.Info($"DB → {info.Name} | Vstopi: {info.UsedEntries + 1:0}/{info.TotalEntries:0}");
-                                        if (_display != null)
-                                            ShowDisplayValues(string.Format(_config.DisplayMessageEntries, (info.UsedEntries + 1).ToString("0"), info.TotalEntries.ToString("0"), info.ValidTo.ToString("dd.MM.yy")), info.Name);
+                                        ShowDisplayValues(string.Format(_config.DisplayMessageEntries, (info.UsedEntries + 1).ToString("0"), info.TotalEntries.ToString("0"), info.ValidTo.ToString("dd.MM.yy")), info.Name);
                                     }
                                 }
                                 else

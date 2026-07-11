@@ -50,7 +50,6 @@
   <DisplayMessageNotValid>Karta ni veljavna!</DisplayMessageNotValid>
   <!-- {0} = datum veljavnosti -->
   <DisplayMessageTimeBased>Valid: {0}</DisplayMessageTimeBased>
-  <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi -->
   <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi, {2} = datum veljavnosti -->
   <DisplayMessageEntries>{0}/{1} until {2}</DisplayMessageEntries>
 </AutoClickerConfig>

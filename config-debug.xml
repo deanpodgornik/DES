@@ -46,8 +46,7 @@
   <Search2Height>21</Search2Height>
   <DisplayMessageNotValid>Karta ni veljavna!</DisplayMessageNotValid>
   <!-- {0} = datum veljavnosti -->
-  <DisplayMessageTimeBased>Valid until: {0}</DisplayMessageTimeBased>
-  <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi -->
+  <DisplayMessageTimeBased>Valid: {0}</DisplayMessageTimeBased>
   <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi, {2} = datum veljavnosti -->
-  <DisplayMessageEntries>Used entries: {0}/{1} until {2}</DisplayMessageEntries>
+  <DisplayMessageEntries>{0}/{1} until {2}</DisplayMessageEntries>
 </AutoClickerConfig>
