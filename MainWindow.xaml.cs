@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ClosedXML.Excel;
@@ -60,6 +62,10 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<LogEntryViewModel> _logEntries = new();
     private readonly ObservableCollection<CardTableRow> _table1Rows = new();
     private readonly ObservableCollection<CardTableRow> _table2Rows = new();
+    private ICollectionView? _table1View;
+    private ICollectionView? _table2View;
+    private string _table1Search = "";
+    private string _table2Search = "";
     private CancellationTokenSource? _cts;
     private readonly DispatcherTimer _clockTimer;
     private AutoClickerConfig? _config;
@@ -69,8 +75,14 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         LogListBox.ItemsSource = _logEntries;
-        Table1Grid.ItemsSource = _table1Rows;
-        Table2Grid.ItemsSource = _table2Rows;
+
+        _table1View = CollectionViewSource.GetDefaultView(_table1Rows);
+        _table1View.Filter = o => FilterRow(o, _table1Search);
+        Table1Grid.ItemsSource = _table1View;
+
+        _table2View = CollectionViewSource.GetDefaultView(_table2Rows);
+        _table2View.Filter = o => FilterRow(o, _table2Search);
+        Table2Grid.ItemsSource = _table2View;
 
         Logger.OnLog += OnLogEntry;
 
@@ -355,6 +367,27 @@ public partial class MainWindow : Window
 
     private void ExportTable2Excel_Click(object sender, RoutedEventArgs e)
         => ExportToExcel(_table2Rows, "Odrasli");
+
+    private void Table1Search_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        _table1Search = ((System.Windows.Controls.TextBox)sender).Text;
+        _table1View?.Refresh();
+    }
+
+    private void Table2Search_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        _table2Search = ((System.Windows.Controls.TextBox)sender).Text;
+        _table2View?.Refresh();
+    }
+
+    private static bool FilterRow(object obj, string query)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return true;
+        if (obj is not CardTableRow r) return false;
+        var q = query.Trim();
+        return r.ContactName.Contains(q, StringComparison.OrdinalIgnoreCase)
+            || r.Code.Contains(q, StringComparison.OrdinalIgnoreCase);
+    }
 
     private static void ExportToExcel(ObservableCollection<CardTableRow> rows, string sheetName)
     {

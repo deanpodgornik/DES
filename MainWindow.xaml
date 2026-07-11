@@ -343,6 +343,17 @@
                                         Style="{StaticResource OutlineButton}"/>
                                 <Button Content="&#x1F4E5;  Izvozi Excel" Click="ExportTable1Excel_Click"
                                         Style="{StaticResource OutlineButton}" Margin="6,0,0,0"/>
+                                <Border BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="3"
+                                        Background="White" VerticalAlignment="Center" Margin="12,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x1F50D;" FontSize="11" Margin="6,0,4,0"
+                                                   VerticalAlignment="Center" Foreground="#999"/>
+                                        <TextBox x:Name="Table1SearchBox" Width="200" BorderThickness="0"
+                                                 FontSize="12" VerticalAlignment="Center" Padding="0,5"
+                                                 Background="Transparent"
+                                                 TextChanged="Table1Search_TextChanged"/>
+                                    </StackPanel>
+                                </Border>
                                 <TextBlock x:Name="Table1Status" Text=""
                                            FontSize="12" Foreground="#888888"
                                            VerticalAlignment="Center" Margin="12,0,0,0"/>
@@ -411,6 +422,17 @@
                                         Style="{StaticResource OutlineButton}"/>
                                 <Button Content="&#x1F4E5;  Izvozi Excel" Click="ExportTable2Excel_Click"
                                         Style="{StaticResource OutlineButton}" Margin="6,0,0,0"/>
+                                <Border BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="3"
+                                        Background="White" VerticalAlignment="Center" Margin="12,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x1F50D;" FontSize="11" Margin="6,0,4,0"
+                                                   VerticalAlignment="Center" Foreground="#999"/>
+                                        <TextBox x:Name="Table2SearchBox" Width="200" BorderThickness="0"
+                                                 FontSize="12" VerticalAlignment="Center" Padding="0,5"
+                                                 Background="Transparent"
+                                                 TextChanged="Table2Search_TextChanged"/>
+                                    </StackPanel>
+                                </Border>
                                 <TextBlock x:Name="Table2Status" Text=""
                                            FontSize="12" Foreground="#888888"
                                            VerticalAlignment="Center" Margin="12,0,0,0"/>
