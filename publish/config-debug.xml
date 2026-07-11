@@ -20,9 +20,9 @@
 
   <!-- Tolerance za ujemanje slik (0-255, nižje = bolj natančno) -->
   <MatchTolerance>30</MatchTolerance>
-
+e
   <!-- Debug mode - shrani screenshote za analizo (true/false) -->
-  <DebugMode>false</DebugMode>
+  <DebugMode>true</DebugMode>
 
   <!-- Zamik pred klikom po ujemanju v milisekundah (3000 = 3 sekunde) -->
   <ClickDelayMs>3000</ClickDelayMs>

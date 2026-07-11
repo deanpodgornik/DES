@@ -1,83 +1,17 @@
 using System.Drawing;
+using System.IO;
+using System.Windows;
 using System.Xml.Serialization;
 
 namespace ScreenAutoClicker;
 
 class Program
 {
-    static async Task Main(string[] args)
+    [STAThread]
+    static void Main()
     {
-        Console.WriteLine("Screen Auto-Clicker Application (.NET 10)");
-        Console.WriteLine("==========================================");
-        Console.WriteLine();
-
-        // Preberi konfiguracijo iz XML datoteke
-        string configPath = "config.xml";
-
-        if (!File.Exists(configPath))
-        {
-            Console.WriteLine($"NAPAKA: Konfiguracijska datoteka '{configPath}' ne obstaja!");
-            Console.WriteLine("Ustvarjam privzeto konfiguracijo...");
-            ConfigLoader.CreateDefaultConfig(configPath);
-            Console.WriteLine($"Konfiguracijska datoteka '{configPath}' je bila ustvarjena.");
-            Console.WriteLine("Uredi jo in znova zaženi aplikacijo.");
-            return;
-        }
-
-        AutoClickerConfig config;
-        try
-        {
-            config = ConfigLoader.Load(configPath);
-
-            if (config.UseDebugConfigFile)
-            {
-                string debugConfigPath = "config-debug.xml";
-                if (File.Exists(debugConfigPath))
-                {
-                    config = ConfigLoader.Load(debugConfigPath);
-                    configPath = debugConfigPath;
-                }
-                else
-                {
-                    Console.WriteLine($"OPOZORILO: UseDebugConfigFile je vključen, vendar '{debugConfigPath}' ne obstaja. Uporaba '{configPath}'.");
-                }
-            }
-
-            Console.WriteLine($"Konfiguracija naložena iz: {configPath}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"NAPAKA pri nalaganju konfiguracije: {ex.Message}");
-            return;
-        }
-
-        if (!File.Exists(config.TemplateImagePath))
-        {
-            Console.WriteLine($"NAPAKA: Template slika '{config.TemplateImagePath}' ne obstaja!");
-            Console.WriteLine("Shrani sliko, ki jo želiš iskati kot 'template.png' v isti mapi kot aplikacija.");
-            return;
-        }
-
-        Console.WriteLine($"Iščem sliko: {config.TemplateImagePath}");
-        Console.WriteLine($"Območje iskanja: ({config.SearchX}, {config.SearchY}) - {config.SearchWidth}x{config.SearchHeight}px");
-        Console.WriteLine($"Klik na: ({config.ClickX}, {config.ClickY})");
-        Console.WriteLine($"Interval: {config.CheckIntervalMs}ms");
-        Console.WriteLine($"Tolerance: {config.MatchTolerance}");
-        Console.WriteLine($"Debug mode: {(config.DebugMode ? "VKLJUČEN" : "IZKLJUČEN")}");
-
-        if (config.DebugMode)
-        {
-            Console.WriteLine();
-            Console.WriteLine("⚠ DEBUG MODE: Screenshoti bodo shranjeni v 'debug_screenshots' mapo");
-            Directory.CreateDirectory("debug_screenshots");
-        }
-
-        Console.WriteLine();
-        Console.WriteLine("Pritisni Ctrl+C za izhod...");
-        Console.WriteLine();
-
-        var autoClicker = new AutoClicker(config);
-        await autoClicker.StartAsync();
+        var app = new Application();
+        app.Run(new MainWindow());
     }
 }
 
@@ -228,13 +162,13 @@ class AutoClicker
         if (!string.IsNullOrEmpty(config.TemplateNotValidImagePath) && File.Exists(config.TemplateNotValidImagePath))
         {
             _template2Image = new Bitmap(config.TemplateNotValidImagePath);
-            Console.WriteLine($"Druga template slika naložena: {config.TemplateNotValidImagePath}");
+            Logger.Info($"Druga template slika naložena: {config.TemplateNotValidImagePath}");
         }
         if (config.DbEnabled)
         {
             _keyboardHook = new KeyboardHook();
             _dbService = new DatabaseService(config.DbConnectionString, config.DbCodeSearchLength);
-            Console.WriteLine("[KB] Globalni tipkovniški hook aktiven");
+            Logger.Info("[KB] Globalni tipkovniški hook aktiven");
         }
         if (config.DisplayEnabled)
         {
@@ -242,12 +176,12 @@ class AutoClicker
             try
             {
                 _display.Open();
-                Console.WriteLine($"[CD7220] Prikazovalnik odprt na {config.DisplayPort}");
+                Logger.Info($"[CD7220] Prikazovalnik odprt na {config.DisplayPort}");
                 _display.ShowMessage(config.DisplayGreeting);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[CD7220] Napaka pri odpiranju {config.DisplayPort}: {ex.Message}");
+                Logger.Error($"[CD7220] Napaka pri odpiranju {config.DisplayPort}: {ex.Message}");
                 _display.Dispose();
                 _display = null;
             }
@@ -260,7 +194,7 @@ class AutoClicker
         _lastDisplayMessage = message;
         _display?.ShowMessage(message);
         if (_config.DebugMode)
-            Console.WriteLine($"[CD7220] Prikaz: '{message}'");
+            Logger.Debug($"[CD7220] Prikaz: '{message}'");
     }
 
     private void ShowDisplayValues(string line1, string line2)
@@ -270,159 +204,152 @@ class AutoClicker
         _lastDisplayMessage = key;
         _display?.ShowValues(line1, line2);
         if (_config.DebugMode)
-            Console.WriteLine($"[CD7220] Prikaz vrednosti: '{line1}' / '{line2}'");
+            Logger.Debug($"[CD7220] Prikaz vrednosti: '{line1}' / '{line2}'");
     }
 
-    public async Task StartAsync()
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
-        var cts = new CancellationTokenSource();
-        Console.CancelKeyPress += (s, e) =>
-        {
-            e.Cancel = true;
-            cts.Cancel();
-            Console.WriteLine("\nUstavljam aplikacijo...");
-        };
-
         int checkCount = 0;
         int matchCount = 0;
 
-        while (!cts.Token.IsCancellationRequested)
+        try
         {
-            checkCount++;
-
-            try
+            while (!cancellationToken.IsCancellationRequested)
             {
-                // Zajemi screenshot določenega območja
-                using var screenshot = ScreenCapture.CaptureRegion(
-                    _config.SearchX,
-                    _config.SearchY,
-                    _config.SearchWidth,
-                    _config.SearchHeight
-                );
+                checkCount++;
 
-                // Debug: Shrani screenshot
-                if (_config.DebugMode)
+                try
                 {
-                    string debugPath = $"debug_screenshots/capture_{checkCount:D4}.png";
-                    screenshot.Save(debugPath);
-                }
+                    // Zajemi screenshot določenega območja
+                    using var screenshot = ScreenCapture.CaptureRegion(
+                        _config.SearchX,
+                        _config.SearchY,
+                        _config.SearchWidth,
+                        _config.SearchHeight
+                    );
 
-                // Preveri, če se slika ujema
-                var matchResult = _imageMatcher.IsMatchWithDetails(screenshot, _templateImage, _config.MatchTolerance);
-
-                if (matchResult.IsMatch)
-                {
-                    //KARTA JE VELJAVNA (template1)
-                    
-                    matchCount++;
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}!");
-
-                    // Iskanje podatkov iz baze po ID-ju z bralnika (tipkovnica)
-                    if (_config.DbEnabled && _dbService != null)
+                    // Debug: Shrani screenshot
+                    if (_config.DebugMode)
                     {
-                        string capturedCode = _keyboardHook?.LastCode ?? "";
-                        if (!string.IsNullOrEmpty(capturedCode))
+                        string debugPath = $"debug_screenshots/capture_{checkCount:D4}.png";
+                        screenshot.Save(debugPath);
+                    }
+
+                    // Preveri, če se slika ujema
+                    var matchResult = _imageMatcher.IsMatchWithDetails(screenshot, _templateImage, _config.MatchTolerance);
+
+                    if (matchResult.IsMatch)
+                    {
+                        //KARTA JE VELJAVNA (template1)
+                        matchCount++;
+
+                        // Iskanje podatkov iz baze po ID-ju z bralnika (tipkovnica)
+                        if (_config.DbEnabled && _dbService != null)
                         {
-                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] KB → Zajet ID: '{capturedCode}'");
-                            var info = await _dbService.GetUserEntriesAsync(capturedCode);
-                            if (info != null)
+                            string capturedCode = _keyboardHook?.LastCode ?? "";
+                            if (!string.IsNullOrEmpty(capturedCode))
                             {
-                                if (info.Unlimited)
+                                Logger.Info($"KB → Zajet ID: '{capturedCode}'");
+                                var info = await _dbService.GetUserEntriesAsync(capturedCode);
+                                if (info != null)
                                 {
-                                    string validTo = info.ValidTo.ToString("dd.MM.yyyy");
-                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → {info.Name} | Mesečna/letna kartica, veljavna do: {validTo}");
-                                    if (_display != null)
-                                        ShowDisplayValues(string.Format(_config.DisplayMessageTimeBased, validTo), info.Name);
+                                    if (info.Unlimited)
+                                    {
+                                        string validTo = info.ValidTo.ToString("dd.MM.yyyy");
+                                        Logger.Info($"DB → {info.Name} | Mesečna/letna kartica, veljavna do: {validTo}");
+                                        if (_display != null)
+                                            ShowDisplayValues(string.Format(_config.DisplayMessageTimeBased, validTo), info.Name);
+                                    }
+                                    else
+                                    {
+                                        Logger.Info($"DB → {info.Name} | Vstopi: {info.UsedEntries + 1:0}/{info.TotalEntries:0}");
+                                        if (_display != null)
+                                            ShowDisplayValues(string.Format(_config.DisplayMessageEntries, (info.UsedEntries + 1).ToString("0"), info.TotalEntries.ToString("0"), info.ValidTo.ToString("dd.MM.yy")), info.Name);
+                                    }
                                 }
                                 else
                                 {
-                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → {info.Name} | Vstopi: {info.UsedEntries + 1:0}/{info.TotalEntries:0}");
-                                    if (_display != null)
-                                        ShowDisplayValues(string.Format(_config.DisplayMessageEntries, (info.UsedEntries + 1).ToString("0"), info.TotalEntries.ToString("0"), info.ValidTo.ToString("dd.MM.yy")), info.Name);
+                                    Logger.Warn($"DB → Uporabnik z ID '{capturedCode}' ni najden.");
                                 }
                             }
                             else
                             {
-                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] DB → Uporabnik z ID '{capturedCode}' ni najden.");
+                                if (_config.DebugMode)
+                                    Logger.Debug("KB → Še ni zajetega ID-ja.");
                             }
+                        }
+
+                        Logger.Info($"✓ UJEMANJE #{matchCount}! Čakam {_config.ClickDelayMs / 1000.0:0.#}s pred klikom...");
+                        await Task.Delay(_config.ClickDelayMs, cancellationToken);
+
+                        Logger.Info($"Klikam na ({_config.ClickX}, {_config.ClickY})");
+
+                        // Premakni miško in klikni
+                        _mouseController.Click(_config.ClickX, _config.ClickY);
+                    }
+                    else if (_template2Image != null)
+                    {
+                        // PREVERI ČE KARTA NI VELJAVNA (template2)
+                        using var screenshot2 = ScreenCapture.CaptureRegion(
+                            _config.Search2X, _config.Search2Y, _config.Search2Width, _config.Search2Height);
+                        if (_config.DebugMode)
+                            screenshot2.Save($"debug_screenshots/capture2_{checkCount:D4}.png");
+
+                        var match2 = _imageMatcher.IsMatchWithDetails(screenshot2, _template2Image, _config.MatchTolerance);
+                        if (match2.IsMatch)
+                        {
+                            matchCount++;
+                            Logger.Info($"✓ UJEMANJE (template2) #{matchCount}!");
+                            ShowDisplay(_config.DisplayMessageNotValid);
                         }
                         else
                         {
                             if (_config.DebugMode)
-                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] KB → Še ni zajetega ID-ja.");
+                            {
+                                Logger.Debug($"✗ Preverjanje #{checkCount} - NI ujemanja (niti template2)");
+                                Logger.Debug($"  → Najv. razlika: R={matchResult.MaxDiffR}, G={matchResult.MaxDiffG}, B={matchResult.MaxDiffB}");
+                            }
+                            else
+                            {
+                                Logger.Info($"✗ Preverjanje #{checkCount} - slika se ne ujema");
+                            }
+
+                            ShowDisplay(_config.DisplayGreeting);
                         }
-                    }                    
-
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE #{matchCount}! Čakam {_config.ClickDelayMs / 1000.0:0.#} sekunde pred klikom...");
-                    await Task.Delay(_config.ClickDelayMs, cts.Token);
-
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Klikam na ({_config.ClickX}, {_config.ClickY})");
-
-                    // Premakni miško in klikni
-                    _mouseController.Click(_config.ClickX, _config.ClickY);
-                    
-                }
-                else if (_template2Image != null)
-                {
-                    // PREVERI ČE KARTA NI VELJAVNA (template2)
-                    //zajameš drugo območje, kjer se nahaja template2
-
-                    using var screenshot2 = ScreenCapture.CaptureRegion(
-                        _config.Search2X, _config.Search2Y, _config.Search2Width, _config.Search2Height);
-                    if (_config.DebugMode)
-                        screenshot2.Save($"debug_screenshots/capture2_{checkCount:D4}.png");
-
-                    var match2 = _imageMatcher.IsMatchWithDetails(screenshot2, _template2Image, _config.MatchTolerance);
-                    if (match2.IsMatch)
-                    {
-                        matchCount++;
-                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✓ UJEMANJE (template2) #{matchCount}!");
-                        ShowDisplay(_config.DisplayMessageNotValid);
                     }
                     else
                     {
                         if (_config.DebugMode)
                         {
-                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✗ Preverjanje #{checkCount} - NI ujemanja (niti template2)");
-                            Console.WriteLine($"  → Najv. razlika: R={matchResult.MaxDiffR}, G={matchResult.MaxDiffG}, B={matchResult.MaxDiffB}");
-                            Console.WriteLine($"  → Screenshot: debug_screenshots/capture_{checkCount:D4}.png");
+                            Logger.Debug($"✗ Preverjanje #{checkCount} - NI ujemanja");
+                            Logger.Debug($"  → Najv. razlika: R={matchResult.MaxDiffR}, G={matchResult.MaxDiffG}, B={matchResult.MaxDiffB}");
                         }
                         else
                         {
-                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✗ Preverjanje #{checkCount} - slika se ne ujema");
+                            Logger.Info($"✗ Preverjanje #{checkCount} - slika se ne ujema");
                         }
-
-                        //Prikaži pozdravno sporočilo
-                        ShowDisplay(_config.DisplayGreeting);
                     }
                 }
-                else
+                catch (OperationCanceledException)
                 {
-                    if (_config.DebugMode)
-                    {
-                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✗ Preverjanje #{checkCount} - NI ujemanja");
-                        Console.WriteLine($"  → Najv. razlika: R={matchResult.MaxDiffR}, G={matchResult.MaxDiffG}, B={matchResult.MaxDiffB}");
-                        Console.WriteLine($"  → Screenshot: debug_screenshots/capture_{checkCount:D4}.png");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ✗ Preverjanje #{checkCount} - slika se ne ujema");
-                    }
+                    throw;
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] NAPAKA: {ex.Message}");
-            }
+                catch (Exception ex)
+                {
+                    Logger.Error($"NAPAKA: {ex.Message}");
+                }
 
-            // Počakaj pred naslednjo iteracijo
-            await Task.Delay(_config.CheckIntervalMs, cts.Token);
+                // Počakaj pred naslednjo iteracijo
+                await Task.Delay(_config.CheckIntervalMs, cancellationToken);
+            }
         }
-
-        _templateImage.Dispose();
-        _template2Image?.Dispose();
-        _keyboardHook?.Dispose();
-        _display?.Dispose();
-        Console.WriteLine($"\nZaključeno. Skupaj pregledov: {checkCount}, Ujemanj: {matchCount}");
+        finally
+        {
+            _templateImage.Dispose();
+            _template2Image?.Dispose();
+            _keyboardHook?.Dispose();
+            _display?.Dispose();
+            Logger.Info($"Zaključeno. Skupaj pregledov: {checkCount}, Ujemanj: {matchCount}");
+        }
     }
 }
