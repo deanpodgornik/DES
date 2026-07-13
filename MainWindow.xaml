@@ -245,7 +245,7 @@
                         MinWidth="160">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#x229E;" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Tabele podatkov" VerticalAlignment="Center"/>
+                        <TextBlock Text="Status kart" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -494,7 +494,7 @@
                     CornerRadius="4" Padding="14"
                     VerticalAlignment="Top">
                 <StackPanel>
-                    <TextBlock Text="Tabele podatkov" FontSize="14" FontWeight="SemiBold" Foreground="#1A1A1A"/>
+                    <TextBlock Text="Status kart" FontSize="14" FontWeight="SemiBold" Foreground="#1A1A1A"/>
                     <TextBlock Text="Odpri tabelo podatkov za pregled in filtriranje."
                                TextWrapping="Wrap" FontSize="12" Foreground="#777777" Margin="0,5,0,14"/>
                     <Button Click="OpenTable1_Click" Style="{StaticResource OutlineButton}"
