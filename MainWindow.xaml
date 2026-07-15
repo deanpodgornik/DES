@@ -403,6 +403,7 @@
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Veljavna do" Binding="{Binding ValidTo}" Width="100" SortMemberPath="ValidToDate"/>
+                                <DataGridTextColumn Header="Dan" Binding="{Binding Dan}" Width="110"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -482,6 +483,7 @@
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Veljavna do" Binding="{Binding ValidTo}" Width="100" SortMemberPath="ValidToDate"/>
+                                <DataGridTextColumn Header="Dan" Binding="{Binding Dan}" Width="110"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

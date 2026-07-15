@@ -55,6 +55,7 @@ public class CardTableRow
     public string StatusText => IsActive ? "Aktivna" : "Neaktivna";
     public DateTime? ValidToDate { get; set; }
     public string ValidTo { get; set; } = "";
+    public string Dan { get; set; } = "";
 }
 
 public partial class MainWindow : Window
@@ -295,7 +296,7 @@ public partial class MainWindow : Window
         string inClause = string.Join(",", typeParams);
         string sql = $@"
             WITH Ranked AS (
-                SELECT c.Contact, c.Code, tc.Name AS CardType,
+                SELECT c.Contact, c.Code, tc.Name AS CardType, c.Contact2,
                        CAST(CASE WHEN tc.Active >= 1 AND tsc.Active >= 1 AND tsc.DateTo >= GETDATE()
                                  THEN 1 ELSE 0 END AS BIT) AS IsActive,
                        tsc.DateTo,
@@ -311,7 +312,7 @@ public partial class MainWindow : Window
                 JOIN TaskScheduleCard tsc ON tsc.idTaskCard = tc.idTaskCard
                 WHERE tc.Name IN ({inClause})
             )
-            SELECT Contact, Code, CardType, IsActive, DateTo
+            SELECT Contact, Code, CardType, IsActive, DateTo, Contact2
             FROM Ranked WHERE rn = 1
             ORDER BY IsActive DESC, Contact, CardType";
 
@@ -335,7 +336,8 @@ public partial class MainWindow : Window
                     CardType    = reader.IsDBNull(2) ? "" : reader.GetString(2),
                     IsActive    = !reader.IsDBNull(3) && reader.GetBoolean(3),
                     ValidToDate = reader.IsDBNull(4) ? null : reader.GetDateTime(4),
-                    ValidTo     = reader.IsDBNull(4) ? "" : reader.GetDateTime(4).ToString("dd.MM.yyyy")
+                    ValidTo     = reader.IsDBNull(4) ? "" : reader.GetDateTime(4).ToString("dd.MM.yyyy"),
+                    Dan         = reader.IsDBNull(5) ? "" : reader.GetString(5)
                 });
             }
 
@@ -414,8 +416,9 @@ public partial class MainWindow : Window
         ws.Cell(1, 3).Value = "Tip karte";
         ws.Cell(1, 4).Value = "Status";
         ws.Cell(1, 5).Value = "Veljavna do";
+        ws.Cell(1, 6).Value = "Dan";
 
-        var headerRange = ws.Range(1, 1, 1, 5);
+        var headerRange = ws.Range(1, 1, 1, 6);
         headerRange.Style.Font.Bold = true;
         headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#1A1A2E");
         headerRange.Style.Font.FontColor = XLColor.White;
@@ -434,6 +437,7 @@ public partial class MainWindow : Window
                 ws.Cell(row, 5).Value = r.ValidToDate.Value;
             else
                 ws.Cell(row, 5).Value = r.ValidTo;
+            ws.Cell(row, 6).Value = r.Dan;
 
             // Color status cell
             var statusCell = ws.Cell(row, 4);
@@ -452,7 +456,7 @@ public partial class MainWindow : Window
             // Alternate row background
             if (i % 2 == 1)
             {
-                for (int c = 1; c <= 5; c++)
+                for (int c = 1; c <= 6; c++)
                     if (c != 4) ws.Cell(row, c).Style.Fill.BackgroundColor = XLColor.FromHtml("#FAFAFA");
             }
         }
@@ -468,7 +472,7 @@ public partial class MainWindow : Window
         ws.SheetView.FreezeRows(1);
 
         // Auto-filter
-        ws.Range(1, 1, 1, 5).SetAutoFilter();
+        ws.Range(1, 1, 1, 6).SetAutoFilter();
 
         try
         {
