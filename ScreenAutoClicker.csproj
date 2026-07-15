@@ -10,9 +10,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <Version>4.2.0</Version>
-    <AssemblyVersion>4.2.0</AssemblyVersion>
-    <FileVersion>4.2.0</FileVersion>
+    <Version>4.2.1</Version>
+    <AssemblyVersion>4.2.1</AssemblyVersion>
+    <FileVersion>4.2.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

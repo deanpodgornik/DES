@@ -94,6 +94,7 @@ public partial class MainWindow : Window
         ClockText.Text = DateTime.Now.ToString("d.M.yyyy HH:mm:ss");
 
         LoadConfig();
+        VersionText.Text = $"Verzija: {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "??"}";
         Loaded += async (_, _) => await CheckForUpdateAsync();
     }
 

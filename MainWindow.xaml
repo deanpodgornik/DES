@@ -558,7 +558,7 @@
         <Border Grid.Row="4" Background="#F5F5F5"
                 BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
             <Grid Margin="22,6">
-                <TextBlock Text="Verzija: 1.0.0.0"
+                <TextBlock x:Name="VersionText" Text="Verzija: ..."
                            FontSize="11" Foreground="#999999"
                            VerticalAlignment="Center" HorizontalAlignment="Left"/>
                 <TextBlock x:Name="ClockText"
