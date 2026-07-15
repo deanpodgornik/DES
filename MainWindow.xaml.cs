@@ -71,6 +71,7 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _clockTimer;
     private AutoClickerConfig? _config;
     private string _configPath = "config.xml";
+    private GitHubRelease? _pendingUpdate;
 
     public MainWindow()
     {
@@ -93,6 +94,38 @@ public partial class MainWindow : Window
         ClockText.Text = DateTime.Now.ToString("d.M.yyyy HH:mm:ss");
 
         LoadConfig();
+        Loaded += async (_, _) => await CheckForUpdateAsync();
+    }
+
+    private async Task CheckForUpdateAsync()
+    {
+        Logger.Info("Preverjam posodobitve...");
+        try
+        {
+            var release = await UpdateService.CheckForUpdateAsync();
+            if (release is not null)
+            {
+                _pendingUpdate = release;
+                Logger.Info($"Na voljo je nova različica: {release.TagName}");
+                UpdateButtonText.Text = $"Posodobitev {release.TagName}";
+                UpdateButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Logger.Info("Aplikacija je posodobljena.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn($"Preverjanje posodobitev ni uspelo: {ex.Message}");
+        }
+    }
+
+    private void UpdateButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_pendingUpdate is null) return;
+        var window = new UpdateWindow(_pendingUpdate) { Owner = this };
+        window.ShowDialog();
     }
 
     private void LoadConfig()
