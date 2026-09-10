@@ -49,4 +49,17 @@
   <DisplayMessageTimeBased>Valid: {0}</DisplayMessageTimeBased>
   <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi, {2} = datum veljavnosti -->
   <DisplayMessageEntries>{0}/{1} until {2}</DisplayMessageEntries>
+
+  <!-- Tipi kart za tabelo Otroci -->
+  <Table1CardTypes>
+    <CardType>1x TEDENSKO 1h</CardType>
+    <CardType>2x TEDENSKO 1h</CardType>
+    <CardType>3x TEDENSKO 2h</CardType>
+  </Table1CardTypes>
+
+  <!-- Tipi kart za tabelo Odrasli -->
+  <Table2CardTypes>
+    <CardType>1x tedensko tečaj + mesečna odrasli</CardType>
+    <CardType>1 X TEDENSKO  tečaj + MESEČNA ODRASLI</CardType>
+  </Table2CardTypes>
 </AutoClickerConfig>

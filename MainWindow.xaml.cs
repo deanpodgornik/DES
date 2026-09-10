@@ -243,31 +243,32 @@ public partial class MainWindow : Window
     private async void OpenTable1_Click(object sender, RoutedEventArgs e)
     {
         MainTabControl.SelectedIndex = 1;
-        await LoadCardTableAsync(_table1Rows, Table1Status,
-            new[] { "1x TEDENSKO 1h", "2x TEDENSKO 1h", "3x TEDENSKO 2h" });
+        await LoadCardTableAsync(_table1Rows, Table1Status, GetTable1CardTypes());
     }
 
     private async void OpenTable2_Click(object sender, RoutedEventArgs e)
     {
         MainTabControl.SelectedIndex = 2;
-        await LoadCardTableAsync(_table2Rows, Table2Status,
-            new[] { "1x tedensko tečaj + mesečna odrasli", "1 X TEDENSKO  tečaj + MESEČNA ODRASLI" });
+        await LoadCardTableAsync(_table2Rows, Table2Status, GetTable2CardTypes());
     }
 
     private async void RefreshTable1_Click(object sender, RoutedEventArgs e)
     {
-        await LoadCardTableAsync(_table1Rows, Table1Status,
-            new[] { "1x TEDENSKO 1h", "2x TEDENSKO 1h", "3x TEDENSKO 2h" });
+        await LoadCardTableAsync(_table1Rows, Table1Status, GetTable1CardTypes());
     }
 
     private async void RefreshTable2_Click(object sender, RoutedEventArgs e)
     {
-        await LoadCardTableAsync(_table2Rows, Table2Status,
-            new[] { "1x tedensko tečaj + mesečna odrasli", "1 X TEDENSKO  tečaj + MESEČNA ODRASLI" });
+        await LoadCardTableAsync(_table2Rows, Table2Status, GetTable2CardTypes());
     }
 
-    private static readonly string[] Table1CardTypes =
-        { "1x TEDENSKO 1h", "2x TEDENSKO 1h", "3x TEDENSKO 2h" };
+    private string[] GetTable1CardTypes()
+        => _config?.Table1CardTypes?.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray()
+           ?? Array.Empty<string>();
+
+    private string[] GetTable2CardTypes()
+        => _config?.Table2CardTypes?.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray()
+           ?? Array.Empty<string>();
 
     private async Task LoadCardTableAsync(
         ObservableCollection<CardTableRow> rows,

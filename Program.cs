@@ -18,6 +18,19 @@ class Program
 [XmlRoot("AutoClickerConfig")]
 public class AutoClickerConfig
 {
+    public static readonly string[] DefaultTable1CardTypes =
+    {
+        "1x TEDENSKO 1h",
+        "2x TEDENSKO 1h",
+        "3x TEDENSKO 2h"
+    };
+
+    public static readonly string[] DefaultTable2CardTypes =
+    {
+        "1x tedensko tečaj + mesečna odrasli",
+        "1 X TEDENSKO  tečaj + MESEČNA ODRASLI"
+    };
+
     [XmlElement("SearchX")]
     public int SearchX { get; set; }
 
@@ -94,7 +107,16 @@ public class AutoClickerConfig
     public string DisplayMessageTimeBased { get; set; } = "Velja do: {0}";
 
     [XmlElement("DisplayMessageEntries")]
-    public string DisplayMessageEntries { get; set; } = "Vhodov: {0}/{1} do {2}";}
+    public string DisplayMessageEntries { get; set; } = "Vhodov: {0}/{1} do {2}";
+
+    [XmlArray("Table1CardTypes")]
+    [XmlArrayItem("CardType")]
+    public string[] Table1CardTypes { get; set; } = DefaultTable1CardTypes;
+
+    [XmlArray("Table2CardTypes")]
+    [XmlArrayItem("CardType")]
+    public string[] Table2CardTypes { get; set; } = DefaultTable2CardTypes;
+}
 
 public static class ConfigLoader
 {
@@ -132,7 +154,9 @@ public static class ConfigLoader
             Search2X = 100, Search2Y = 100, Search2Width = 50, Search2Height = 50,
             DisplayMessageNotValid = "Dobrodošli!",
             DisplayMessageTimeBased = "Velja do: {0}",
-            DisplayMessageEntries = "Vhodov: {0}/{1} do {2}"
+            DisplayMessageEntries = "Vhodov: {0}/{1} do {2}",
+            Table1CardTypes = AutoClickerConfig.DefaultTable1CardTypes,
+            Table2CardTypes = AutoClickerConfig.DefaultTable2CardTypes
         };
 
         var serializer = new XmlSerializer(typeof(AutoClickerConfig));

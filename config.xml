@@ -25,7 +25,7 @@
   <DebugMode>false</DebugMode>
 
   <!-- Uporabi config-debug.xml kot konfiguracijo, ko je DebugMode=true (true/false) -->
-  <UseDebugConfigFile>false</UseDebugConfigFile>
+  <UseDebugConfigFile>true</UseDebugConfigFile>
 
   <!-- Zamik pred klikom po ujemanju v milisekundah (3000 = 3 sekunde) -->
   <ClickDelayMs>3000</ClickDelayMs>
@@ -52,4 +52,15 @@
   <DisplayMessageTimeBased>Valid: {0}</DisplayMessageTimeBased>
   <!-- {0} = porabljeni vstopi, {1} = skupaj vstopi, {2} = datum veljavnosti -->
   <DisplayMessageEntries>{0}/{1} until {2}</DisplayMessageEntries>
+
+  <!-- Tipi kart za tabelo Otroci -->
+  <Table1CardTypes>
+    <CardType>Otroci 1x tedensko</CardType>
+    <CardType>Otroci 2x tedensko</CardType>
+  </Table1CardTypes>
+
+  <!-- Tipi kart za tabelo Odrasli -->
+  <Table2CardTypes>
+    <CardType>Tečaji Odrasli Mesečna Vadba</CardType>
+  </Table2CardTypes>
 </AutoClickerConfig>
