@@ -302,11 +302,12 @@ public partial class MainWindow : Window
                                  THEN 1 ELSE 0 END AS BIT) AS IsActive,
                        tsc.DateTo,
                        ROW_NUMBER() OVER (
-                           PARTITION BY tc.idContactUse, tc.Name
+                           PARTITION BY c.Code
                            ORDER BY
+                               tsc.DateTo DESC,
                                CASE WHEN tc.Active >= 1 AND tsc.Active >= 1 AND tsc.DateTo >= GETDATE()
                                     THEN 0 ELSE 1 END,
-                               tsc.DateTo DESC
+                               tc.idTaskCard DESC
                        ) AS rn
                 FROM Contact c
                 JOIN TaskCard tc ON tc.idContactUse = c.idContact
